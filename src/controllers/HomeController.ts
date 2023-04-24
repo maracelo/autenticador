@@ -1,5 +1,11 @@
 import { Request, Response } from "express";
 
 export function home(req: Request, res: Response){
-    res.send('Home');
+    res.render('home', {
+        title: 'Home',
+        pagecss: 'home.css',
+        user: {
+            name: 'mara',
+        }
+    });
 }
