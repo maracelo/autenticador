@@ -1,10 +1,15 @@
 <header>
-    <a href="#" class="user">{{user.name}}</a>
-    <nav>
-        <ul>
-            <li><a href="#">Teste</a></li>
-            <li><a href="#">Teste</a></li>
-            <li><a href="/logout" class="logout">Logout</a></li>
-        </ul>
-    </nav>
+    {{#user}}
+        <a href="#" class="user">{{user.name}}</a>
+        <nav>
+            <ul>
+                <li><a href="#">Teste</a></li>
+                <li><a href="#">Teste</a></li>
+                <li><a href="/logout" class="logout">Logout</a></li>
+            </ul>
+        </nav>
+    {{/user}}
+    {{^user}}
+        <h1>{{title}}</h1>
+    {{/user}}
 </header>

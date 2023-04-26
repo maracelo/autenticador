@@ -1,12 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
-<body>
-    <h1>Login Page</h1>
-</body>
-</html>
+{{>partials/head}}
+{{>partials/header}}
+
+    <main>
+        <div class="container">
+            <form action="#">
+                <input type="email" placeholder="Digite seu E-mail">
+                <input type="password" placeholder="Digite sua Senha">
+                <button>Login</button>
+            </form>
+            <p class="link">Não tem uma conta? <strong><a href="/register">Criar conta&#x1F60A</a></strong></p>
+        </div>
+    </main>
+
+{{>partials/footer}}
