@@ -3,11 +3,15 @@ import dotenv from "dotenv";
 import path from "path";
 import mustache from "mustache-express";
 import MainRoutes from "./routes/index";
-import { sequelize } from "../instances/mysql";
+import { sequelize } from "./instances/mysql";
+import passport from 'passport';
+
 
 dotenv.config();
 
 const server = express();
+
+server.use(passport.initialize());
 
 server.set('view engine', 'mustache');
 server.set('views', path.join(__dirname, 'views'));
