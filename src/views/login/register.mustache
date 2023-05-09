@@ -3,11 +3,11 @@
 
     <main>
         <div class="container">
-            <form action="#">
-                <input type="text" placeholder="Digite seu Nome">
-                <input type="email" placeholder="Digite seu E-mail">
-                <input type="password" placeholder="Digite sua Senha">
-                <input type="password" placeholder="Repita a Senha">
+            <form action="/register" method="POST">
+                <input type="text" name="name" placeholder="Digite seu Nome">
+                <input type="email" name="email" placeholder="Digite seu E-mail">
+                <input type="password" name="password" placeholder="Digite sua Senha">
+                <input type="password" name="password_confirmation" placeholder="Repita a Senha">
                 <button>Login</button>
             </form>
             <p class="link">Já tem uma conta? <strong><a href="/login">Fazer login&#x1F60A</a></strong></p>

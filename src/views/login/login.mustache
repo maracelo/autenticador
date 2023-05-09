@@ -3,9 +3,9 @@
 
     <main>
         <div class="container">
-            <form action="#">
-                <input type="email" placeholder="Digite seu E-mail">
-                <input type="password" placeholder="Digite sua Senha">
+            <form action="/login" method="POST" enctype="application/x-www-form-urlencoded">
+                <input type="email" name="email" placeholder="Digite seu E-mail">
+                <input type="password" name="password" placeholder="Digite sua Senha">
                 <button>Login</button>
             </form>
             <p class="link">Não tem uma conta? <strong><a href="/register">Criar conta&#x1F60A</a></strong></p>
