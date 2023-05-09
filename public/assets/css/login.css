@@ -54,3 +54,12 @@ input, button{
 .link a:hover{
     text-decoration: none;
 }
+
+.message{
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: rgb(223, 129, 129);
+    border: 1px solid #ff0000;
+    color: #fff;
+}

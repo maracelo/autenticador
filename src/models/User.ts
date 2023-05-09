@@ -6,6 +6,7 @@ export interface UserInstance extends Model {
     name: string;
     email: string;
     password: string;
+    token: string;
 }
 
 export const User = sequelize.define<UserInstance>('User', {
@@ -18,6 +19,9 @@ export const User = sequelize.define<UserInstance>('User', {
         type: DataTypes.STRING
     },
     password: {
+        type: DataTypes.STRING
+    },
+    token: {
         type: DataTypes.STRING
     }
 },{

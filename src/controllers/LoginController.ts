@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
-import { generateToken } from '../config/passport';
+import { generateToken } from '../middleware/generateToken';
+import dotenv from 'dotenv';
 import Cookies from 'js-cookie';
 import bcrypt from 'bcrypt';
 
+dotenv.config();
+
 export async function login(req: Request, res: Response){
-    if(Cookies.get('token') !== undefined){
-        res.redirect('/');
-        return;
-    }
+    let message: string|false = false;
 
     if(req.body.email && req.body.password){
         const {email, password} = req.body;
@@ -16,27 +16,29 @@ export async function login(req: Request, res: Response){
         const user = await User.findOne({where: { email }});
 
         if(user){
-            const passComp = await bcrypt.compare(password, user.password);
 
-            if(passComp){
-                const token = generateToken({ id: user.id });
+            const validPassword = await bcrypt.compare(password, user.password);
 
-                Cookies.set('token', token);
-                return res.redirect('/');
+            if(validPassword){
+                const token = generateToken({ id: user.id })
+                Cookies.set('token', token)
+
+                res.redirect('/');
+                return;
             }
-        } 
+        }
+        message = 'E-mail e/ou senha inválidos'
     }
 
-    return res.render('login/login', {
+    res.render('login/login', {
         title: 'Login',
         pagecss: 'login.css',
+        message
     });
 }
 
 export async function register(req: Request, res: Response){
-    console.log(req.body);
-
-    let message: string|false = false;
+    let message: false|string = false;
     
     if(req.body.email && req.body.password){
         const {email, password} = req.body;
@@ -62,5 +64,6 @@ export async function register(req: Request, res: Response){
 };
 
 export function logout(req: Request, res: Response){
-    res.send('logout');
+    console.log(Cookies.remove('token'));
+    res.redirect('/login');
 };

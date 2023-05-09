@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as LoginController from "../controllers/LoginController";
 import * as HomeController from "../controllers/HomeController";
-import passport from "../config/passport";
+import { Auth } from '../middleware/auth';
 
 const router = Router();
 
@@ -11,6 +11,6 @@ router.get('/register', LoginController.register);
 router.post('/register', LoginController.register);
 router.get('/logout', LoginController.logout);
 
-router.get('/', passport.authenticate('jwt', { session: false }), HomeController.home);
+router.get('/', Auth.private, HomeController.home);
 
 export default router;

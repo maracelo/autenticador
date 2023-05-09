@@ -4,7 +4,7 @@ import path from "path";
 import mustache from "mustache-express";
 import MainRoutes from "./routes/index";
 import { sequelize } from "./instances/mysql";
-import passport from 'passport';
+// import passport from 'passport';
 import cors from 'cors';
 
 dotenv.config();
@@ -13,10 +13,10 @@ const server = express();
 
 server.use( cors() );
 
-server.use( express.static(path.join(__dirname, '../public')) );
 server.use( express.urlencoded({ extended: true }) )
+server.use( express.static(path.join(__dirname, '../public')) );
 
-server.use(passport.initialize());
+// server.use(passport.initialize());
 
 server.set('view engine', 'mustache');
 server.set('views', path.join(__dirname, 'views'));

@@ -3,11 +3,18 @@
 
     <main>
         <div class="container">
-            <form action="/login" method="POST" enctype="application/x-www-form-urlencoded">
-                <input type="email" name="email" placeholder="Digite seu E-mail">
-                <input type="password" name="password" placeholder="Digite sua Senha">
+            <form action="/login" method="POST">
+                {{#message}}
+                    <div class="message">{{message}}</div>
+                {{/message}}
+
+                <input id="email" type="email" name="email" placeholder="Digite seu E-mail">
+                <input id="password" type="password" name="password" placeholder="Digite sua Senha">
                 <button>Login</button>
+                
+                <input id="token" type="hidden" name="token" value="{{token}}">
             </form>
+
             <p class="link">Não tem uma conta? <strong><a href="/register">Criar conta&#x1F60A</a></strong></p>
         </div>
     </main>
