@@ -15,6 +15,9 @@ export const User = sequelize.define<UserInstance>('User', {
         autoIncrement: true,
         type: DataTypes.INTEGER
     },
+    name: {
+        type: DataTypes.STRING
+    },
     email: {
         type: DataTypes.STRING
     },

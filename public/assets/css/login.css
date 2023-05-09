@@ -56,10 +56,22 @@ input, button{
 }
 
 .message{
+    background-color: rgb(223, 129, 129);
+    justify-content: space-between;
+    display: flex;
     width: 100%;
     padding: 15px;
     margin-bottom: 20px;
-    background-color: rgb(223, 129, 129);
     border: 1px solid #ff0000;
     color: #fff;
+}
+.message p{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1px 5px;
+    cursor: pointer;
+}
+.message p:hover{
+    background-color: #ff0000;
 }

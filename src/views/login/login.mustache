@@ -5,18 +5,28 @@
         <div class="container">
             <form action="/login" method="POST">
                 {{#message}}
-                    <div class="message">{{message}}</div>
+                    <div class="message">{{message}} <p>x</p></div>
+                    {{message = undefined}}
                 {{/message}}
 
                 <input id="email" type="email" name="email" placeholder="Digite seu E-mail">
                 <input id="password" type="password" name="password" placeholder="Digite sua Senha">
                 <button>Login</button>
-                
-                <input id="token" type="hidden" name="token" value="{{token}}">
             </form>
 
             <p class="link">Não tem uma conta? <strong><a href="/register">Criar conta&#x1F60A</a></strong></p>
         </div>
     </main>
+
+    <script>
+        const messageField = document.querySelector('.message') || undefined;
+        const messageXButton = document.querySelector('.message p') || undefined;
+
+        if(messageField){
+            messageXButton.addEventListener('click', () =>{
+                messageField.remove();
+            });
+        }
+    </script>
 
 {{>partials/footer}}

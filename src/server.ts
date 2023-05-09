@@ -4,31 +4,33 @@ import path from "path";
 import mustache from "mustache-express";
 import MainRoutes from "./routes/index";
 import { sequelize } from "./instances/mysql";
-// import passport from 'passport';
+import session from "express-session";
 import cors from 'cors';
 
 dotenv.config();
 
-const server = express();
+const app = express();
 
-server.use( cors() );
+app.use( cors() );
 
-server.use( express.urlencoded({ extended: true }) )
-server.use( express.static(path.join(__dirname, '../public')) );
+const sessionSecret = process.env.SESSION_SECRET_KEY as string;
 
-// server.use(passport.initialize());
+app.use(session({secret: sessionSecret}));
 
-server.set('view engine', 'mustache');
-server.set('views', path.join(__dirname, 'views'));
-server.engine('mustache', mustache());
+app.use( express.urlencoded({ extended: true }) );
+app.use( express.static(path.join(__dirname, '../public')) );
 
-server.use(MainRoutes);
+app.set('view engine', 'mustache');
+app.set('views', path.join(__dirname, 'views'));
+app.engine('mustache', mustache());
 
-server.use((req, res) =>{
+app.use(MainRoutes);
+
+app.use((req, res) =>{
     res.status(404).send('<h1>404</h1>');
 });
 
-server.listen(process.env.PORT, () =>{
+app.listen(process.env.PORT, () =>{
     console.log(
         `listening port ${process.env.PORT}, link: http://localhost:3000`
     );
