@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
-import { generateToken } from '../middleware/generateToken';
+import { generateToken } from '../middleware/auth';
 import dotenv from 'dotenv';
 import Cookies from 'js-cookie';
 import bcrypt from 'bcrypt';
-import session from 'express-session';
 
 dotenv.config();
 

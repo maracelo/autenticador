@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import path from "path";
 import mustache from "mustache-express";
@@ -26,7 +26,7 @@ app.engine('mustache', mustache());
 
 app.use(MainRoutes);
 
-app.use((req, res) =>{
+app.use((req: Request, res: Response) =>{
     res.status(404).send('<h1>404</h1>');
 });
 

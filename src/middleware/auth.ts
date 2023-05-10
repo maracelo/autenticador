@@ -19,3 +19,7 @@ export const Auth = {
         success ? next() : res.redirect('/login');
     }
 }
+
+export const generateToken = (data: Object) =>{
+    return JWT.sign(data, process.env.JWT_SECRET_KEY as string)
+}
