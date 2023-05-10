@@ -4,14 +4,20 @@
     <main>
         <div class="container">
             <form action="/register" method="POST">
+                {{#message}}
+                    <div class="message">{{.}} <p>x</p></div>
+                {{/message}}
+
                 <input type="text" name="name" placeholder="Digite seu Nome">
                 <input type="email" name="email" placeholder="Digite seu E-mail">
                 <input type="password" name="password" placeholder="Digite sua Senha">
                 <input type="password" name="password_confirmation" placeholder="Repita a Senha">
-                <button>Login</button>
+                <button>Criar Usuário</button>
             </form>
             <p class="link">Já tem uma conta? <strong><a href="/login">Fazer login&#x1F60A</a></strong></p>
         </div>
     </main>
+
+    <script src="/assets/js/closeErrorMessage.js"></script>
 
 {{>partials/footer}}

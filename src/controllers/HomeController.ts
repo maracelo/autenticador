@@ -8,14 +8,13 @@ export async function home(req: Request, res: Response){
         const user = await User.findOne({where: { token} });
 
         if(user){
-            res.render('home', {
+            return res.render('home', {
                 title: 'Home',
                 pagecss: 'home.css',
                 user: user,
             });
-            return;
         }
     }
 
-    res.redirect('/login');
+    res.status(401).redirect('/login');
 }
