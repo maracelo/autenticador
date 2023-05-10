@@ -5,8 +5,7 @@
         <div class="container">
             <form action="/login" method="POST">
                 {{#message}}
-                    <div class="message">{{message}} <p>x</p></div>
-                    {{message = undefined}}
+                    <div class="message">{{.}} <p>x</p></div>
                 {{/message}}
 
                 <input id="email" type="email" name="email" placeholder="Digite seu E-mail">
@@ -18,15 +17,6 @@
         </div>
     </main>
 
-    <script>
-        const messageField = document.querySelector('.message') || undefined;
-        const messageXButton = document.querySelector('.message p') || undefined;
-
-        if(messageField){
-            messageXButton.addEventListener('click', () =>{
-                messageField.remove();
-            });
-        }
-    </script>
+    <script src="/assets/js/closeErrorMessage.js"></script>
 
 {{>partials/footer}}
