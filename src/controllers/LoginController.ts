@@ -14,7 +14,14 @@ declare module 'express-session' {
 }
 
 function validatePassword(password: string){
-    return validator.matches(password, /^(?=.*[0-9])(?=.*[)(}{!@#$%^&*_-])[a-zA-Z0-9)(}{!@#$%^&*_-]{8,100}$/g);
+    return validator.matches(password, /^(?=.*[0-9])(?=.*['";:/><)(}{!@#$%^&*_-])[a-zA-Z0-9'";:/><)(}{!@#$%^&*_-]{8,100}$/g);
+}
+
+function replaceXssEspecialCharacters(string: string){
+    let cleanString = string;
+    cleanString = cleanString.replace(/</g, '');
+    cleanString = cleanString.replace(/>/g, '');
+    return cleanString;
 }
 
 export async function login(req: Request, res: Response){
@@ -84,10 +91,19 @@ export async function register(req: Request, res: Response){
         });
     }
 
+    const user = await User.findOne({ where: { email } });
+
+    if(user){
+        return res.render('login/register', {
+            title, pagecss,
+            message: 'E-mail já está em uso'
+        });
+    }
+
     if(password !== password_confirmation){
         return res.render('login/register', {
             title, pagecss,
-            message: 'Senhas precisão ser iguais'
+            message: 'Senhas precisam ser iguais'
         });
     }
     
@@ -102,9 +118,10 @@ export async function register(req: Request, res: Response){
         });
     }
     
+    const finalName = replaceXssEspecialCharacters(name);
     const encryptedPassword = await bcrypt.hash(password, 8);
     
-    const newUser = await User.create({ name, email, password: encryptedPassword });
+    const newUser = await User.create({ name: finalName, email, password: encryptedPassword });
     const token = generateToken({ id: newUser.id });
     newUser.token = token;
     newUser.save();
