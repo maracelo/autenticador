@@ -91,10 +91,19 @@ export async function register(req: Request, res: Response){
         });
     }
 
+    const user = await User.findOne({ where: { email } });
+
+    if(user){
+        return res.render('login/register', {
+            title, pagecss,
+            message: 'E-mail já está em uso'
+        });
+    }
+
     if(password !== password_confirmation){
         return res.render('login/register', {
             title, pagecss,
-            message: 'Senhas precisão ser iguais'
+            message: 'Senhas precisam ser iguais'
         });
     }
     
