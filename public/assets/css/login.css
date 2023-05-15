@@ -14,7 +14,6 @@ main{
 .container{
     padding: 30px;
     background-color: #489dec;
-    /* border-radius: 20px; */
     box-shadow: 1px 1px 2px #0000002f;
 }
 
@@ -23,7 +22,6 @@ form{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* height: 100%; */
     height: fit-content;
     width: 100%;
 }
@@ -46,7 +44,6 @@ input, button{
     border-top: 1px solid #1D3461;
     padding-top: 20px;
     position: relative;
-    /* margin-bottom: 20px; */
 }
 .link a{
     color: #fff;
