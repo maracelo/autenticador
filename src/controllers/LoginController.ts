@@ -19,7 +19,7 @@ function validatePassword(password: string){
 
 export async function login(req: Request, res: Response){
     if(req.session.token){
-        res.redirect('/');
+        return res.redirect('/');
     }
 
     const title = 'Login';
@@ -48,17 +48,13 @@ export async function login(req: Request, res: Response){
         return res.render('login/login', { title, pagecss, message });
     }
 
-    const token = generateToken({ id: user.id });
-    user.token = token;
-    user.save();
-    req.session.token = token;
-
+    req.session.token = generateToken({ name: user.name, email: user.email });
     res.status(200).redirect('/');
 }
 
 export async function register(req: Request, res: Response){
     if(req.session.token){
-        res.redirect('/');
+        return res.redirect('/');
     }
 
     const title = 'Cadastro';
@@ -113,13 +109,9 @@ export async function register(req: Request, res: Response){
     
     const finalName = validator.blacklist(name, '<>');
     const encryptedPassword = await bcrypt.hash(password, 8);
-    
     const newUser = await User.create({ name: finalName, email, password: encryptedPassword });
-    const token = generateToken({ id: newUser.id });
-    newUser.token = token;
-    newUser.save();
-    req.session.token = token;
-
+    
+    req.session.token = generateToken({ name: newUser.name, email: email });
     res.status(201).redirect('/');
 };
 

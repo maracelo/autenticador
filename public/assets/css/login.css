@@ -53,9 +53,11 @@ input, button{
     text-decoration: none;
 }
 
-#g_id_onload{
+.g_id_signin{
     border-top: 1px solid #1D3461;
+    padding: 0;
     padding-top: 20px; margin-top: 20px;
+    width: 100%;
 }
 
 .message{
