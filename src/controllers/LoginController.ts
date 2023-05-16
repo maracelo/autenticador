@@ -17,13 +17,6 @@ function validatePassword(password: string){
     return validator.matches(password, /^(?=.*[0-9])(?=.*['";:/><)(}{!@#$%^&*_-])[a-zA-Z0-9'";:/><)(}{!@#$%^&*_-]{8,100}$/g);
 }
 
-function replaceXssEspecialCharacters(string: string){
-    let cleanString = string;
-    cleanString = cleanString.replace(/</g, '');
-    cleanString = cleanString.replace(/>/g, '');
-    return cleanString;
-}
-
 export async function login(req: Request, res: Response){
     if(req.session.token){
         res.redirect('/');
@@ -118,7 +111,7 @@ export async function register(req: Request, res: Response){
         });
     }
     
-    const finalName = replaceXssEspecialCharacters(name);
+    const finalName = validator.blacklist(name, '<>');
     const encryptedPassword = await bcrypt.hash(password, 8);
     
     const newUser = await User.create({ name: finalName, email, password: encryptedPassword });
