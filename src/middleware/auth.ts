@@ -20,6 +20,6 @@ export const Auth = {
     }
 }
 
-export const generateToken = (data: Object) =>{
+export const generateToken = (data: { name: string, email: string }) =>{
     return JWT.sign(data, process.env.JWT_SECRET_KEY as string)
 }
