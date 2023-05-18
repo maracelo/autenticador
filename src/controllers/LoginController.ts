@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { User } from '../models/User';
 import { generateToken } from '../middleware/auth';
 import dotenv from 'dotenv';
-import validator from 'validator';
-import bcrypt from 'bcrypt';
+import userRegister from '../helpers/userRegister';
+import userLogin from '../helpers/userLogin';
 
 dotenv.config();
 
@@ -13,10 +12,6 @@ declare module 'express-session' {
     }
 }
 
-function validatePassword(password: string){
-    return validator.matches(password, /^(?=.*[0-9])(?=.*['";:/><)(}{!@#$%^&*_-])[a-zA-Z0-9'";:/><)(}{!@#$%^&*_-]{8,100}$/g);
-}
-
 export async function login(req: Request, res: Response){
     if(req.session.token){
         return res.redirect('/');
@@ -24,32 +19,26 @@ export async function login(req: Request, res: Response){
 
     const title = 'Login';
     const pagecss = 'login.css';
-    let message: string[] = ['E-mail e/ou senha inválidos'];
+    
+    const response = await userLogin(req.body);
 
-    if(!req.body.email || !req.body.password){
+    if(!response){
         return res.render('login/login', { title, pagecss });
-    }
-    
-    const {email, password} = req.body;
 
-    if(!validator.isEmail(email) || !validatePassword(password)){
-        return res.render('login/login', { title, pagecss, message });
-    }
+    }else{
+        if(!response.user && !response.message){
+            return res.status(500).render('login/login', { title, pagecss, message: 'Erro no Sistema'});
+        }
     
-    const user = await User.findOne({where: { email }});
-    
-    if(!user){
-        return res.render('login/login', { title, pagecss, message });
+        if(!response.user && response.message){
+            return res.render('login/login', { title, pagecss, message: response.message });
+        }
+        
+        if(response && response.user){
+            req.session.token = generateToken({ name: response.user.name, email: response.user.email });
+            return res.redirect('/');
+        }
     }
-    
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if(!validPassword){
-        return res.render('login/login', { title, pagecss, message });
-    }
-
-    req.session.token = generateToken({ name: user.name, email: user.email });
-    res.status(200).redirect('/');
 }
 
 export async function register(req: Request, res: Response){
@@ -57,62 +46,28 @@ export async function register(req: Request, res: Response){
         return res.redirect('/');
     }
 
-    const title = 'Cadastro';
-    const pagecss = 'login.css';
+    const title: string = 'Cadastro';
+    const pagecss: string = 'login.css';
 
-    if(!req.body.name || !req.body.email || !req.body.password || !req.body.password_confirmation){
+    const response = await userRegister(req.body);
+
+    if(!response){
         return res.render('login/register', { title, pagecss });
-    }
 
-    const {name, email, password, password_confirmation} = req.body;
-
-    if(name.length < 2){
-        return res.render('login/register', {
-            title, pagecss,
-            message: 'Nome precisa de no mínimo 2 caracteres'
-        });
-    }
+    }else{
+        if(!response.user && !response.message){
+            return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
+        }
     
-    if(!validator.isEmail(email)){
-        return res.render('login/register', {
-            title, pagecss,
-            message: 'E-mail inválido'
-        });
+        if(!response.user && response.message){
+            return res.render('login/register', { title, pagecss, message: response.message });
+        }
+        
+        if(response && response.user){
+            req.session.token = generateToken({ name: response.user.name, email: response.user.email });
+            return res.status(201).redirect('/');
+        }
     }
-
-    const user = await User.findOne({ where: { email } });
-
-    if(user){
-        return res.render('login/register', {
-            title, pagecss,
-            message: 'E-mail já está em uso'
-        });
-    }
-
-    if(password !== password_confirmation){
-        return res.render('login/register', {
-            title, pagecss,
-            message: 'Senhas precisam ser iguais'
-        });
-    }
-    
-    if(!validatePassword(password)){
-        return res.render('login/register', {
-            title, pagecss,
-            message: [
-                'Senha tem que ter entre 8 a 100 caracteres',
-                'Senha precisa de caracteres numéricos e alfabéticos',
-                'Senha tem que ter 1 ou mais caracteres especias'
-            ]
-        });
-    }
-    
-    const finalName = validator.blacklist(name, '<>');
-    const encryptedPassword = await bcrypt.hash(password, 8);
-    const newUser = await User.create({ name: finalName, email, password: encryptedPassword });
-    
-    req.session.token = generateToken({ name: newUser.name, email: email });
-    res.status(201).redirect('/');
 };
 
 export function logout(req: Request, res: Response){
