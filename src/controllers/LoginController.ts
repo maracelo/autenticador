@@ -53,20 +53,19 @@ export async function register(req: Request, res: Response){
 
     if(!response){
         return res.render('login/register', { title, pagecss });
+    }
 
-    }else{
-        if(!response.user && !response.message){
-            return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
-        }
+    if(!response.user && !response.message){
+        return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
+    }
+
+    if(response.message){
+        return res.render('login/register', { title, pagecss, message: response.message });
+    }
     
-        if(!response.user && response.message){
-            return res.render('login/register', { title, pagecss, message: response.message });
-        }
-        
-        if(response && response.user){
-            req.session.token = generateToken({ name: response.user.name, email: response.user.email });
-            return res.status(201).redirect('/');
-        }
+    if(response.user){
+        req.session.token = generateToken({ name: response.user.name, email: response.user.email });
+        return res.status(201).redirect('/');
     }
 };
 

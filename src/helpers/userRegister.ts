@@ -1,11 +1,45 @@
 import UserInfoType from '../types/UserInfoType';
-import UserRegisterReturnType from '../types/ReturnType';
+import ReturnType from '../types/ReturnType';
 import validatePassword from '../helpers/validatePassword';
 import validator from 'validator';
 import { User } from '../models/User';
 import bcrypt from 'bcrypt';
 
-async function userRegister(userInfo: UserInfoType|undefined): Promise<UserRegisterReturnType>{
+async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnType>{
+    let response;
+    
+    if(userInfo){
+        if(userInfo.password && userInfo.password_confirmation){
+            response = await defaultUserInfoValidation(userInfo);
+        }
+        
+        if(userInfo.sub) response = await googleUserInfoValidation(userInfo);
+
+    }else{
+        return { message: 'Erro no Sistema' };
+    }
+
+    if(response){
+        const { user, message } = response;
+    
+        if(message) return { message };
+
+        if(user){
+            const newUser = await User.create({
+                name: user.name, 
+                email: user.email, 
+                password: '',
+                sub: user.sub ?? null
+            });
+            
+            return { user: {name: newUser.name, email: newUser.email} }
+        }
+    }
+
+    return;
+}
+
+async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
     if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.password || !userInfo.password_confirmation){
         return;
     }
@@ -31,17 +65,32 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<UserRegis
             ]
         };
     }
-    
+
     const finalName = validator.blacklist(userInfo.name, '<>');
     const encryptedPassword = await bcrypt.hash(userInfo.password, 8);
-    
-    const newUser = await User.create({
-        name: finalName, 
-        email: userInfo.email, 
-        password: encryptedPassword 
-    });
-    
-    return { user: {name: newUser.name, email: newUser.email} };
+    return {
+        user: {
+            name: finalName,
+            email: userInfo.email,
+            password: encryptedPassword
+        }
+    }
+}
+
+async function googleUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
+    if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.sub){
+        return { message: 'Login com o Google está indisponível no momento, tente mais tarde' };
+    }
+
+    const encryptedSub = await bcrypt.hash(userInfo.sub, 8);
+
+    return {
+        user: {
+            name: userInfo.name,
+            email: userInfo.email,
+            sub: encryptedSub
+        }
+    }
 }
 
 export default userRegister;
