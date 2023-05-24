@@ -18,7 +18,7 @@
             <p class="link">Já tem uma conta? <strong><a href="/login">Fazer login&#x1F60A</a></strong></p>
             <div id="g_id_onload"
                 data-client_id="744854303319-6hcrlannfgvjgo0uj7m9esp6r2omraec.apps.googleusercontent.com"
-                data-callback=getGoogleInfo
+                data-callback=getGoogleUserInfo
                 data-auto_prompt="false">
             </div>
             <div style="width:100%;" class="g_id_signin"
@@ -35,21 +35,6 @@
     <script src="/assets/js/closeErrorMessage.js"></script>
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script>
-        async function getGoogleInfo( {credential} ){
-            if(credential){
-                const { name, email, email_verified, sub } = jwt_decode(credential);
-
-                if(!email_verified) alert('Error no Sistema');
-
-                document.querySelector('input[name=name]').value = name;
-                document.querySelector('input[name=email]').value = email;
-                document.querySelector('input[name=sub]').value = sub;
-                document.querySelector('button').click();
-            }else{
-                alert('Error no Sistema');
-            }
-        }
-    </script>
+    <script src="/assets/js/getGoogleUserInfo.js"> type = 'register'; </script>
 
 {{>partials/footer}}

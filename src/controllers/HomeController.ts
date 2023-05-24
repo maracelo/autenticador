@@ -12,7 +12,6 @@ export async function home(req: Request, res: Response){
         const decoded: null | { name: string; email: string } = await jwt_decode(token);
 
         if(decoded){
-            
             const user = await User.findOne({where: { email: decoded.email } });
             
             if(user){
