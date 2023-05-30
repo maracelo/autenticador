@@ -29,6 +29,14 @@
                 data-size="large"
                 data-logo_alignment="left">
             </div>
+            <div class="fb-login-button"
+                data-width=""
+                data-size="large"
+                data-button-type=""
+                data-layout=""
+                data-auto-logout-link="true"
+                data-use-continue-as="true"
+            ></div>
         </div>
     </main>
 
@@ -36,5 +44,20 @@
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="/assets/js/getGoogleUserInfo.js"> type = 'register'; </script>
+    <script>
+        window.fbAsyncInit = function(){
+            FB.init({
+            appId            : '576559401283179',
+            autoLogAppEvents : true,
+            xfbml            : true,
+            version          : 'v17.0'
+            });
+            
+            FB.getLoginStatus(function(response) {
+                console.log(response);
+            });
+        };
+    </script>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
 
 {{>partials/footer}}
