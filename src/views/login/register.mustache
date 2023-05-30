@@ -18,7 +18,7 @@
             <p class="link">Já tem uma conta? <strong><a href="/login">Fazer login&#x1F60A</a></strong></p>
             <div id="g_id_onload"
                 data-client_id="744854303319-6hcrlannfgvjgo0uj7m9esp6r2omraec.apps.googleusercontent.com"
-                data-callback=getGoogleInfo
+                data-callback=getGoogleUserInfo
                 data-auto_prompt="false">
             </div>
             <div style="width:100%;" class="g_id_signin"
@@ -29,27 +29,35 @@
                 data-size="large"
                 data-logo_alignment="left">
             </div>
+            <div class="fb-login-button"
+                data-width=""
+                data-size="large"
+                data-button-type=""
+                data-layout=""
+                data-auto-logout-link="true"
+                data-use-continue-as="true"
+            ></div>
         </div>
     </main>
 
     <script src="/assets/js/closeErrorMessage.js"></script>
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="/assets/js/getGoogleUserInfo.js"> type = 'register'; </script>
     <script>
-        async function getGoogleInfo( {credential} ){
-            if(credential){
-                const { name, email, email_verified, sub } = jwt_decode(credential);
-
-                if(!email_verified) alert('Error no Sistema');
-
-                document.querySelector('input[name=name]').value = name;
-                document.querySelector('input[name=email]').value = email;
-                document.querySelector('input[name=sub]').value = sub;
-                document.querySelector('button').click();
-            }else{
-                alert('Error no Sistema');
-            }
-        }
+        window.fbAsyncInit = function(){
+            FB.init({
+            appId            : '576559401283179',
+            autoLogAppEvents : true,
+            xfbml            : true,
+            version          : 'v17.0'
+            });
+            
+            FB.getLoginStatus(function(response) {
+                console.log(response);
+            });
+        };
     </script>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
 
 {{>partials/footer}}
