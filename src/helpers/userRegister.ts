@@ -9,9 +9,7 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnTyp
     let response;
     
     if(userInfo){
-        if(userInfo.password && userInfo.password_confirmation){
-            response = await defaultUserInfoValidation(userInfo);
-        }
+        if(userInfo.password && userInfo.password_confirmation) response = await defaultUserInfoValidation(userInfo);
         
         if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
@@ -28,7 +26,7 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnTyp
             const newUser = await User.create({
                 name: user.name, 
                 email: user.email, 
-                password: '',
+                password: user.password ?? '',
                 sub: user.sub ?? null
             });
             
@@ -39,7 +37,6 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnTyp
     return;
 }
 
-//TODO verificar o pq tá salvando sem a senha
 async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
     if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.password || !userInfo.password_confirmation){
         return;
@@ -52,6 +49,8 @@ async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Prom
     const user = await User.findOne({ where: { email: userInfo.email } });
 
     if(user) return { message: 'E-mail já está em uso' };
+
+    if(!userInfo.password) return { message: 'Senha vazia' };
 
     if(userInfo.password !== userInfo.password_confirmation){
         return { message: 'Senhas precisam ser iguais' };
