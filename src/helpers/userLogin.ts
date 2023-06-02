@@ -9,11 +9,9 @@ async function userLogin(userInfo: UserInfoType|undefined): Promise<ReturnType>{
     let response;
 
     if(userInfo){
-        if(userInfo.password){
-            response = await defaultUserInfoValidation(userInfo);
-        } 
+        if(userInfo.password) response = await defaultUserInfoValidation(userInfo);
         
-        if(userInfo.sub) response = await googleUserInfoValidation(userInfo);
+        if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
     }else{
         return { message: 'Erro no Sistema' };
@@ -50,9 +48,9 @@ async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Prom
     return { user };
 }
 
-async function googleUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
+async function SSOUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
     if(!userInfo || !userInfo.email || !userInfo.sub){
-        return { message: 'Login com o Google está indisponível no momento, tente mais tarde' };
+        return { message: 'Esse tipo de Login está indisponível no momento, tente mais tarde' };
     }
 
     const user = await User.findOne({ where: { email: userInfo.email } });
