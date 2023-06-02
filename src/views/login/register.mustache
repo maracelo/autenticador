@@ -15,7 +15,9 @@
                 <input type="hidden" name="sub">
                 <button>Criar Usuário</button>
             </form>
-            <p class="link">Já tem uma conta? <strong><a href="/login">Fazer login&#x1F60A</a></strong></p>
+
+            <p class="link">Já tem uma conta?&#160;<strong><a href="/login">Fazer login&#x1F60A</a></strong></p>
+
             <div id="g_id_onload"
                 data-client_id="744854303319-6hcrlannfgvjgo0uj7m9esp6r2omraec.apps.googleusercontent.com"
                 data-callback=getGoogleUserInfo
@@ -29,6 +31,7 @@
                 data-size="large"
                 data-logo_alignment="left">
             </div>
+
             <div class="fb-login-button"
                 data-width=""
                 data-size="large"
@@ -36,28 +39,18 @@
                 data-layout=""
                 data-auto-logout-link="true"
                 data-use-continue-as="true"
+                onlogin = getFacebookUserInfo
             ></div>
         </div>
     </main>
 
     <script src="/assets/js/closeErrorMessage.js"></script>
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/assets/js/getGoogleUserInfo.js"> type = 'register'; </script>
-    <script>
-        window.fbAsyncInit = function(){
-            FB.init({
-            appId            : '576559401283179',
-            autoLogAppEvents : true,
-            xfbml            : true,
-            version          : 'v17.0'
-            });
-            
-            FB.getLoginStatus(function(response) {
-                console.log(response);
-            });
-        };
-    </script>
+    <script src="/assets/js/getGoogleUserInfo.js"></script>
+    
+    <script src="/assets/js/getFacebookUserInfo.js"></script>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
 
 {{>partials/footer}}

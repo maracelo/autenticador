@@ -45,6 +45,7 @@ input, button{
     justify-content: center;
     align-items: center;
     color: #fff;
+    font-size: 15px;
     border-top: 1px solid #1D3461;
     padding-top: 20px;
     position: relative;

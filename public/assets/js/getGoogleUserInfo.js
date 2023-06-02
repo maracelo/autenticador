@@ -1,32 +1,33 @@
-const inputName = document.querySelector('input[name=name]') ?? undefined;
-const inputEmail = document.querySelector('input[name=email]') ?? undefined;
-const inputSub = document.querySelector('input[name=sub]') ?? undefined;
-const button = document.querySelector('button') ?? undefined;
+const gInputName = document.querySelector('input[name=name]') ?? undefined;
+const gInputEmail = document.querySelector('input[name=email]') ?? undefined;
+const gInputSub = document.querySelector('input[name=sub]') ?? undefined;
+const gButton = document.querySelector('button') ?? undefined;
 
-let type = 'login';
+const gType = window.location.pathname;
 
 async function getGoogleUserInfo( {credential} ){
-    if(credential && inputEmail && inputSub && button){
+    if(credential && inputEmail && inputSub && gButton){
         const { name, email, email_verified, sub } = jwt_decode(credential);
 
         if(!email_verified) alert('Esta conta não tem E-mail verificado');
 
         switch(type){
-            case 'login':
+            case '/login':
                 inputEmail.value = email;
                 inputSub.value = sub;
-                button.click();
+                gButton.click();
             break;
-            case 'register':
+            case '/register':
                 inputName.value = name;
                 inputEmail.value = email;
                 inputSub.value = sub;
-                button.click();
+                gButton.click();
             break;
             default:
-                alert('Erro no Sistema')
+                alert('Erro no Sistema');
             break;
         }
+        return;
     }else{
         alert('Preencha todos os campos');
     }

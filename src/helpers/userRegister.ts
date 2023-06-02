@@ -13,7 +13,7 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnTyp
             response = await defaultUserInfoValidation(userInfo);
         }
         
-        if(userInfo.sub) response = await googleUserInfoValidation(userInfo);
+        if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
     }else{
         return { message: 'Erro no Sistema' };
@@ -39,6 +39,7 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnTyp
     return;
 }
 
+//TODO verificar o pq tá salvando sem a senha
 async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
     if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.password || !userInfo.password_confirmation){
         return;
@@ -77,11 +78,15 @@ async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Prom
     }
 }
 
-async function googleUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
+async function SSOUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
     if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.sub){
-        return { message: 'Login com o Google está indisponível no momento, tente mais tarde' };
+        return { message: 'Esse tipo de Login está indisponível no momento, tente mais tarde' };
     }
 
+    const user = await User.findOne({ where: { email: userInfo.email } });
+
+    if(user) return { message: 'E-mail já está em uso' };
+    
     const encryptedSub = await bcrypt.hash(userInfo.sub, 8);
 
     return {
