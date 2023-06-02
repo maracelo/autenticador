@@ -48,9 +48,18 @@
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/assets/js/getGoogleUserInfo.js"></script>
     
-    <script src="/assets/js/getFacebookUserInfo.js"></script>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
+    <script>
+        window.fbAsyncInit = function(){
+            FB.init({
+                appId            : '576559401283179',
+                autoLogAppEvents : true,
+                xfbml            : true,
+                version          : 'v17.0'
+            });
+        };
+    </script>
+    <script src="/assets/js/sendSSOUserInfo.js"></script>
 
 {{>partials/footer}}
