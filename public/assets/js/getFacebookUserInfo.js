@@ -47,9 +47,7 @@ function getFacebookUserInfo(){
                     fInputName.value = name;
                     fInputEmail.value = email;
                     fInputSub.value = id;
-                    setTimeout(() => {
-                        fButton.click();
-                    }, 1000000000000);
+                    fButton.click();
                 break;
                 default:
                     alert('Erro no Sistema');
