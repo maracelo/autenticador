@@ -6,11 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/server.js",
-    "start-dev": "nodemon -e ts,json src/server.ts"
+    "dev": "nodemon -e ts,json src/server.ts"
   },
   "author": "Marcelo Augusto",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.4.0",
     "bcrypt": "^5.1.0",
     "cookie": "^0.5.0",
     "cors": "^2.8.5",
@@ -25,9 +26,11 @@
     "mysql2": "^3.2.4",
     "node": "^20.1.0",
     "sequelize": "^6.31.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "validator": "^13.9.0"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/bcrypt": "^5.0.0",
     "@types/cookie": "^0.5.1",
     "@types/cors": "^2.8.13",

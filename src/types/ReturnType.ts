@@ -1,6 +1,12 @@
 type ReturnType = undefined | {
     message?: string|string[];
-    user?: { email: string; name: string; password?: string; sub?: string; }
+    user?: { 
+        name: string;
+        email: string;
+        phone?: string;
+        password?: string;
+        sub?: string;
+    }
 };
 
 export default ReturnType;

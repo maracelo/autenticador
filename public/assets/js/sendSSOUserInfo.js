@@ -1,7 +1,7 @@
-const inputName = document.querySelector('input[name=name]') ?? undefined;
-const inputEmail = document.querySelector('input[name=email]') ?? undefined;
-const inputSub = document.querySelector('input[name=sub]') ?? undefined;
-const button = document.querySelector('button') ?? undefined;
+const inputName = document.querySelector('#input_name') ?? undefined;
+const inputEmail = document.querySelector('#input_email') ?? undefined;
+const inputSub = document.querySelector('#input_sub') ?? undefined;
+const button = document.querySelector('#button') ?? undefined;
 
 const type = window.location.pathname;
 
@@ -49,7 +49,7 @@ function getFacebookUserInfo(){
 }
 
 function sendSSOUserInfo(user){
-    if(!inputName || !inputEmail || !inputSub) return alert('Erro no Site');
+    if(!inputEmail || !inputSub || (type === '/register' && !inputName)) return alert('Erro no Site');
 
     if(!user || !user.name || !user.email || !user.sub){
         return alert('Informações faltando. Tente novamente mais tarde');
