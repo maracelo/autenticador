@@ -8,10 +8,10 @@
                     <div class="message">{{.}} <p>x</p></div>
                 {{/message}}
 
-                <input id="email" type="email" name="email" placeholder="Digite seu E-mail">
-                <input id="password" type="password" name="password" placeholder="Digite sua Senha">
-                <input type="hidden" name="sub">
-                <button>Login</button>
+                <input id="input_email" type="email" name="email" placeholder="Digite seu E-mail">
+                <input id="input_password" type="password" name="password" placeholder="Digite sua Senha">
+                <input id="input_sub" type="hidden" name="sub">
+                <button id="button">Login</button>
             </form>
 
             <p class="link">Não tem uma conta?&#160;<strong><a href="/register">Criar conta&#x1F60A</a></strong></p>
@@ -46,9 +46,18 @@
     <script src="https://unpkg.com/jwt-decode/build/jwt-decode.js"></script>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/assets/js/getGoogleUserInfo.js"> type = 'login'; </script>
 
-    <script src="/assets/js/getFacebookUserInfo.js"></script>
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js"></script>
+    <script>
+        window.fbAsyncInit = function(){
+            FB.init({
+                appId            : '576559401283179',
+                autoLogAppEvents : true,
+                xfbml            : true,
+                version          : 'v17.0'
+            });
+        };
+    </script>
+    <script src="/assets/js/sendSSOUserInfo.js"></script>
 
 {{>partials/footer}}

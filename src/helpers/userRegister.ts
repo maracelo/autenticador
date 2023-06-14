@@ -1,54 +1,60 @@
+import validator from 'validator';
+import bcrypt from 'bcrypt';
 import UserInfoType from '../types/UserInfoType';
 import ReturnType from '../types/ReturnType';
-import validatePassword from '../helpers/validatePassword';
-import validator from 'validator';
 import { User } from '../models/User';
-import bcrypt from 'bcrypt';
+import validatePassword from './validatePassword';
+// import phoneNumberValidation from './phoneNumberValidation';
+import sanitizeName from './sanitizeName';
+// import { PhoneAuth } from '../models/PhoneAuth';
 
 async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnType>{
     let response;
     
-    if(userInfo){
-        if(userInfo.password && userInfo.password_confirmation) response = await defaultUserInfoValidation(userInfo);
-        
-        if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
+    if(!userInfo) return { message: 'Erro no Sistema' };
 
-    }else{
-        return { message: 'Erro no Sistema' };
-    }
-
-    if(response){
-        const { user, message } = response;
+    if(userInfo.password && userInfo.password_confirmation) response = await defaultUserInfoValidation(userInfo);
     
-        if(message) return { message };
+    if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
-        if(user){
-            const newUser = await User.create({
-                name: user.name, 
-                email: user.email, 
-                password: user.password ?? '',
-                sub: user.sub ?? null
-            });
-            
-            return { user: {name: newUser.name, email: newUser.email} }
-        }
+    if(!response) return;
+
+    const { user, message } = response;
+
+    if(message) return { message };
+
+    if(user){
+        const newUser = await User.create({
+            name: user.name, 
+            email: user.email, 
+            /* phone: user.phone ?? null, */
+            password: user.password ?? '',
+            sub: user.sub ?? null
+        });
+
+        // await PhoneAuth.create({ user_id: newUser.id });
+        
+        return { user: {name: newUser.name, email: newUser.email/* , phone: user.phone ?? undefined */} }
     }
-
-    return;
 }
 
-async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
-    if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.password || !userInfo.password_confirmation){
-        return;
-    }
+async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType>{
+    if(
+        !userInfo || !userInfo.name || !userInfo.email || 
+        !userInfo.password || !userInfo.password_confirmation/*  || !userInfo.phone */
+    ) return;
 
-    if(userInfo.name.length < 2) return { message: 'Nome precisa de no mínimo 2 caracteres' };
-    
     if(!validator.isEmail(userInfo.email)) return { message: 'E-mail inválido' };
-
-    const user = await User.findOne({ where: { email: userInfo.email } });
-
+    
+    /* const validatedPhone = phoneNumberValidation(userInfo.phone);
+    
+    if(!validatedPhone) return { message: 'Número de Celular inválido'} */
+    
+    const user = await User.findOne({ where: {email: userInfo.email} });
+    
     if(user) return { message: 'E-mail já está em uso' };
+    
+    if(userInfo.name.length < 2) return { message: 'Nome precisa de no mínimo 2 caracteres' };
 
     if(!userInfo.password) return { message: 'Senha vazia' };
 
@@ -66,18 +72,13 @@ async function defaultUserInfoValidation(userInfo: UserInfoType|undefined): Prom
         };
     }
 
-    const finalName = validator.blacklist(userInfo.name, '<>');
+    const finalName = sanitizeName(userInfo.name);
     const encryptedPassword = await bcrypt.hash(userInfo.password, 8);
-    return {
-        user: {
-            name: finalName,
-            email: userInfo.email,
-            password: encryptedPassword
-        }
-    }
+
+    return { user: {name: finalName, email: userInfo.email, password: encryptedPassword/* , phone: userInfo.phone */} }
 }
 
-async function SSOUserInfoValidation(userInfo: UserInfoType|undefined): Promise<ReturnType>{
+async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType>{
     if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.sub){
         return { message: 'Esse tipo de Login está indisponível no momento, tente mais tarde' };
     }
@@ -85,16 +86,11 @@ async function SSOUserInfoValidation(userInfo: UserInfoType|undefined): Promise<
     const user = await User.findOne({ where: { email: userInfo.email } });
 
     if(user) return { message: 'E-mail já está em uso' };
-    
+
+    const finalName = sanitizeName(userInfo.name);
     const encryptedSub = await bcrypt.hash(userInfo.sub, 8);
 
-    return {
-        user: {
-            name: userInfo.name,
-            email: userInfo.email,
-            sub: encryptedSub
-        }
-    }
+    return { user: {name: finalName, email: userInfo.email, sub: encryptedSub} }
 }
 
 export default userRegister;
