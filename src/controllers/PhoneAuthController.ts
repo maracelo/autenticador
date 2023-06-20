@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import jwt_decode from 'jwt-decode';
 import validator from 'validator';
-import DecodedType from '../types/decodedType';
+import TokenDataType from '../types/TokenDataType';
 import { User } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
 import phoneNumberValidation from '../helpers/phoneNumberValidation';
@@ -9,13 +9,14 @@ import OTP from '../helpers/OTP';
 
 type statusType = undefined | 'approved' | 'pending' | 'invalid';
 
+//TODO fazer teste com mock no envio do otp
 //Problema em que otp não tá sendo retornado de OTP
 export async function page(req: Request, res: Response){
     let status: statusType;
     let otp_id: undefined | string;
     let message: undefined | string;
 
-    const decoded: DecodedType = jwt_decode(req.session.token);
+    const decoded: TokenDataType = jwt_decode(req.session.token);
 
     if(!decoded || !decoded.phone) return res.redirect('/logout');
 
@@ -58,7 +59,7 @@ export async function verify(req: Request, res: Response){
     let message: undefined | string;
     const { code } = req.body ?? null;
     
-    const decoded: DecodedType = await jwt_decode(req.session.token);
+    const decoded: TokenDataType = await jwt_decode(req.session.token);
     
     if(!decoded || !decoded.phone) return res.redirect('/logout');
 

@@ -1,14 +1,14 @@
 import validator from 'validator';
 import bcrypt from 'bcrypt';
 import UserInfoType from '../types/UserInfoType';
-import ReturnType from '../types/ReturnType';
+import DefaultReturnType from '../types/DefaultReturnType';
 import { User } from '../models/User';
 import validatePassword from './validatePassword';
 // import phoneNumberValidation from './phoneNumberValidation';
 import sanitizeName from './sanitizeName';
 // import { PhoneAuth } from '../models/PhoneAuth';
 
-async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnType>{
+async function userRegister(userInfo: UserInfoType|undefined): Promise<DefaultReturnType>{
     let response;
     
     if(!userInfo) return { message: 'Erro no Sistema' };
@@ -17,9 +17,9 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnTyp
     
     if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
-    if(!response) return;
+    if(!response || (!response.user && !response.message)) return;
 
-    const { user, message } = response;
+    const {user, message} = response;
 
     if(message) return { message };
 
@@ -34,11 +34,16 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<ReturnTyp
 
         // await PhoneAuth.create({ user_id: newUser.id });
         
-        return { user: {name: newUser.name, email: newUser.email/* , phone: user.phone ?? undefined */} }
+        return {user: {
+            name: user.name, 
+            email: user.email, 
+            verified_email: user.verified_email,
+            /* phone: user.phone ?? undefined */
+        }};
     }
 }
 
-async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType>{
+async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<DefaultReturnType>{
     if(
         !userInfo || !userInfo.name || !userInfo.email || 
         !userInfo.password || !userInfo.password_confirmation/*  || !userInfo.phone */
@@ -75,10 +80,16 @@ async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<Return
     const finalName = sanitizeName(userInfo.name);
     const encryptedPassword = await bcrypt.hash(userInfo.password, 8);
 
-    return { user: {name: finalName, email: userInfo.email, password: encryptedPassword/* , phone: userInfo.phone */} }
+    return {user: {
+        name: finalName,
+        email: userInfo.email,
+        verified_email: false,
+        /* phone: userInfo.phone, */
+        password: encryptedPassword
+    }};
 }
 
-async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType>{
+async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<DefaultReturnType>{
     if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.sub){
         return { message: 'Esse tipo de Login está indisponível no momento, tente mais tarde' };
     }
@@ -90,7 +101,12 @@ async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType
     const finalName = sanitizeName(userInfo.name);
     const encryptedSub = await bcrypt.hash(userInfo.sub, 8);
 
-    return { user: {name: finalName, email: userInfo.email, sub: encryptedSub} }
+    return {user: {
+        name: finalName,
+        email: userInfo.email,
+        verified_email: true,
+        sub: encryptedSub
+    }};
 }
 
 export default userRegister;

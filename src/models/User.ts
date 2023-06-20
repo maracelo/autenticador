@@ -5,6 +5,7 @@ interface UserInstance extends Model {
     id: number;
     name: string;
     email: string;
+    verified_email: boolean;
     phone: string | null;
     password: string;
     sub: string | null;
@@ -21,6 +22,9 @@ export const User = sequelize.define<UserInstance>('User', {
     },
     email: {
         type: DataTypes.STRING
+    },
+    verified_email: {
+        type: DataTypes.BOOLEAN
     },
     phone: {
         type: DataTypes.STRING,

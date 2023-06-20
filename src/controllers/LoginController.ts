@@ -1,20 +1,16 @@
 import { Request, Response } from 'express';
 import dotenv from 'dotenv';
-/* import jwt_decode from 'jwt-decode';
-import DecodedType from '../types/decodedType';
-import { PhoneAuth } from '../models/PhoneAuth';
-import { User } from '../models/User'; */
+import jwtDecode from 'jwt-decode';
+import TokenDataType from '../types/TokenDataType';
+import { User } from '../models/User'; 
+// import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
 import userRegister from '../helpers/userRegister';
 import userLogin from '../helpers/userLogin';
+import verifyToken from '../helpers/verifyToken';
+import checkDecoded from '../helpers/checkDecoded';
 
 dotenv.config();
-
-declare module 'express-session' {
-    interface SessionData {
-        token: any;
-    }
-}
 
 export async function login(req: Request, res: Response){
     const title = 'Login';
@@ -43,8 +39,12 @@ export async function login(req: Request, res: Response){
 
             return res.status(201).redirect('/phoneauth');
         }  */
-
-        req.session.token = generateToken({ name: response.user.name, email: response.user.email });
+        
+        req.session.token = await generateToken({ 
+            name: response.user.name, 
+            email: response.user.email,
+            verified_email: response.user.verified_email 
+        });
         res.status(201).redirect('/');
     }
 }
@@ -77,25 +77,32 @@ export async function register(req: Request, res: Response){
             return res.status(201).redirect('/phoneauth');
         }  */
 
-        req.session.token = generateToken({ name: response.user.name, email: response.user.email });
+        req.session.token = generateToken({ 
+            name: response.user.name, 
+            email: response.user.email, 
+            verified_email: response.user.verified_email
+        });
         return res.status(201).redirect('/');
     }
 };
 
 export async function logout(req: Request, res: Response){
-    
-    // const decoded: DecodedType = await jwt_decode(req.session.token);
-    req.session.destroy(function(err){});
-    
-    /* if(!decoded || !decoded.phone) return res.redirect('/login');
-    
-    const user = await User.findOne({ where: {phone: decoded.phone} });
+    const token = req.session.token;
 
-    if(!user) return res.redirect('/login');
+    const checkRes = await checkDecoded(token);
     
-    const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
+    if(checkRes === 'verified'){
+        let decoded: TokenDataType = await jwtDecode(token);
+        
+        const user = await User.findOne({ where: {email: decoded.email} });
+        
+        if(user) await user.update({ verified_email: false });
+    }
+    
+    req.session.destroy( (err) =>{ console.log(err) } );
+    res.redirect('/login');
+
+    /* const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
     
     if(phoneAuth) await phoneAuth.update({ auth: false, status: false }); */
-    
-    res.redirect('/login');
 };

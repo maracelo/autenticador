@@ -24,6 +24,12 @@ app.set('view engine', 'mustache');
 app.set('views', path.join(__dirname, 'views'));
 app.engine('mustache', mustache());
 
+declare module 'express-session' {
+    interface SessionData {
+        token: any;
+    }
+}
+
 app.use(MainRoutes);
 
 app.use((req: Request, res: Response) =>{
