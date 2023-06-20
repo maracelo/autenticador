@@ -1,11 +1,11 @@
 import UserInfoType from "../types/UserInfoType";
-import ReturnType from "../types/ReturnType";
+import DefaultReturnType from "../types/DefaultReturnType";
 import validatePassword from "./validatePassword";
 import { User } from "../models/User";
 import bcrypt from 'bcrypt';
 import validator from "validator";
 
-async function userLogin(userInfo: UserInfoType): Promise<ReturnType>{
+async function userLogin(userInfo: UserInfoType): Promise<DefaultReturnType>{
     let response;
 
     if(!userInfo) return { message: 'Erro no Sistema' };
@@ -20,10 +20,15 @@ async function userLogin(userInfo: UserInfoType): Promise<ReturnType>{
 
     if(message) return { message };
 
-    if(user) return { user: {name: user.name, email: user.email/* , phone: user.phone ?? undefined */} };
+    if(user) return {user: {
+        name: user.name,
+        email: user.email,
+        verified_email: user.verified_email,
+        /* phone: user.phone ?? undefined */
+    }};
 }
 
-async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType>{
+async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<DefaultReturnType>{
     const message = 'E-mail e/ou senha inválidos';
 
     if( !userInfo || !userInfo.email || !userInfo.password) return;
@@ -40,10 +45,15 @@ async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<Return
 
     if(!validPassword) return {message};
 
-    return { user: {name: user.name, email: user.email/* , phone: user.phone ?? undefined */} };
+    return {user: {
+        name: user.name,
+        email: user.email,
+        verified_email: user.verified_email,
+        /* phone: user.phone ?? undefined */
+    }};
 }
 
-async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType>{
+async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<DefaultReturnType>{
     if(!userInfo || !userInfo.email || !userInfo.sub){
         return { message: 'Esse tipo de Login está indisponível no momento, tente mais tarde' };
     }
@@ -56,7 +66,11 @@ async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<ReturnType
 
     if(!validatedSub) return { message: 'Usuário inválido' };
 
-    return { user: {name: user.name, email: user.email} };
+    return {user: {
+        name: user.name,
+        email: user.email,
+        verified_email: true
+    }};
 }
 
 export default userLogin;

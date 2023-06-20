@@ -1,0 +1,25 @@
+header{
+    justify-content: center;
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: calc(100% - 156px);
+    color: #fff;
+}
+main h1{
+    color: #000;
+}
+main a{
+    font-weight: bold;
+    color: #489DEC;
+    padding: 4px;
+    border: 2px solid #489DEC;
+}
+main a:hover{
+    transform: scale(1.1);
+}

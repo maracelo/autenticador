@@ -1,45 +1,54 @@
 import { Request, Response, NextFunction } from 'express';
-import JWT from 'jsonwebtoken';
-import dotenv from 'dotenv';
-import jwt_decode from 'jwt-decode';
-import { User } from '../models/User';
 // import { PhoneAuth } from '../models/PhoneAuth';
-import TokenDataType from '../types/TokenDataType';
+import verifyToken from '../helpers/verifyToken';
+import checkDecoded from '../helpers/checkDecoded';
 
-dotenv.config();
+const Auth = { checkJWT, checkVerifiedEmail, privateRoute }
 
-export const Auth = { privateRoute, checkLogin }
+async function checkJWT(req: Request, res: Response, next: NextFunction){
+    const token = await req.session.token;
 
-function privateRoute(req: Request, res: Response, next: NextFunction){
-    const token = req.session.token ?? null;
+    if(verifyToken(token)) return res.redirect('/verifyemail');
     
-    if(!req.session.token || !JWT.verify(token, process.env.JWT_SECRET_KEY as string)){
-        return res.redirect('/login');
-    } 
-    
-    next();
+    next(); 
 }
 
-async function checkLogin(req: Request, res: Response, next: NextFunction){
-    const token = req.session.token ?? null;
-    
-    if(!token || !JWT.verify(token, process.env.JWT_SECRET_KEY as string)) return next();
-    
-    const decoded: TokenDataType = await jwt_decode(token);
+async function privateRoute(req: Request, res: Response, next: NextFunction){
+    const token = await req.session.token;
 
-    if(!decoded || !decoded.email) return res.redirect('/logout');
+    const checkRes = await checkDecoded(token)
 
-    const user = await User.findOne({ where: {email: decoded.email} });
-
-    if(!user) return res.redirect('/logout');
-
-    res.redirect('/'); //temp
-
-    /* if(!user.phone) return next();
-
-    const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
-
-    if(!phoneAuth) return res.redirect('/logout');
-
-    phoneAuth.auth ? next() : res.redirect('/phoneauth'); */
+    switch(checkRes){
+        case 'not_verified':
+            res.redirect('/verifyemail');
+        break;
+        case 'verified':
+            next();
+        break;
+        default:
+            res.redirect('/logout');
+        break;
+    }
 }
+
+async function checkVerifiedEmail(req: Request, res: Response, next: NextFunction){
+    const token = await req.session.token;
+    
+    if(!verifyToken(token)) return res.redirect('/login');
+
+    const checkRes = await checkDecoded(token)
+
+    switch(checkRes){
+        case 'not_verified':
+            next();
+        break;
+        case 'verified':
+            res.redirect('/verifyemail');
+        break;
+        default:
+            res.redirect('/logout');
+        break;
+    }
+}
+
+export default Auth;

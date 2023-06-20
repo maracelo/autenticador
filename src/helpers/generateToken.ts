@@ -1,8 +1,12 @@
 import JWT from 'jsonwebtoken';
-import TokenDataType from "../types/TokenDataType";
 
-const generateToken = (data: TokenDataType) =>{
-    return JWT.sign(data, process.env.JWT_SECRET_KEY as string)
+function generateToken(data: any){
+    try{
+        return JWT.sign(data, process.env.JWT_SECRET_KEY as string)
+    }catch(err){
+        console.log('err de generateToken: ' + err);
+        return '';
+    }
 }
 
 export default generateToken;
