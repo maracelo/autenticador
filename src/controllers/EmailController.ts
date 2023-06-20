@@ -35,19 +35,11 @@ export async function confirm(req: Request, res: Response){
 
     await user.update({ verified_email: true });
 
-    // TODO quando dou destroy ele não consegue gerar o novo token
-    // nem dá para reescrever a session
-    req.session.destroy( (err) => { console.log(err) } );
-
-    try{
-        req.session.token = await generateToken({
-            name: user.name,
-            email:user.email,
-            verified_email: true
-        });
-    }catch(err){
-        console.log('erro foi aqui' + err);
-    }
+    req.session.token = await generateToken({
+        name: user.name,
+        email:user.email,
+        verified_email: true
+    });
 
     res.redirect('/verifyemail');
 }
