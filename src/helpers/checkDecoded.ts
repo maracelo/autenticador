@@ -9,9 +9,7 @@ async function checkDecoded(token: any): Promise<void | 'verified' | 'not_verifi
 
     if(!decoded || !decoded.name || !decoded.email) return;
 
-    if(!decoded.verified_email) return 'not_verified';
-
-    return 'verified';
+    return decoded.verified_email ? 'verified' : 'not_verified';
 }
 
 export default checkDecoded;

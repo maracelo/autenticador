@@ -35,7 +35,7 @@ async function checkVerifiedEmail(req: Request, res: Response, next: NextFunctio
     const token = await req.session.token;
     
     if(!verifyToken(token)) return res.redirect('/login');
-
+    
     const checkRes = await checkDecoded(token)
 
     switch(checkRes){
@@ -43,7 +43,7 @@ async function checkVerifiedEmail(req: Request, res: Response, next: NextFunctio
             next();
         break;
         case 'verified':
-            res.redirect('/verifyemail');
+            res.redirect('/');
         break;
         default:
             res.redirect('/logout');
