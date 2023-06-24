@@ -1,0 +1,36 @@
+{{>partials/head}}
+    <header>
+        <a href="/" class="user">{{user.name}}</a>
+        <nav>
+            <ul>
+                <li><a href="/logout" class="logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <form action="/config" method="POST">
+                {{#message}}
+                    <div class="message">{{.}} <p>x</p></div>
+                {{/message}}
+                <h2>{{title}}</h2>
+
+                <input type="text" name="name" value="{{user.name}}">
+                <input type="email" name="email" value="{{user.email}}">
+                <input type="password" name="new_password">
+                <input type="password" name="old_password">
+                <label> Autenticação por Celular 
+                    {{#checked}}
+                        <input type="checkbox" checked name="phone_auth_toggle">
+                    {{/checked}}
+                    {{^checked}}
+                        <input type="checkbox" name="phone_auth_toggle">
+                    {{/checked}}
+                </label>
+                <button id="button">Enviar</button>
+            </form>
+        </div>
+    </main>
+
+{{>partials/footer}}

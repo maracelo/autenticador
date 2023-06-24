@@ -1,0 +1,20 @@
+{{>partials/head}}
+{{>partials/header}}
+
+    <main>
+        <div class="container">
+            <form action="/addphone" method="POST">
+                {{#message}}
+                    <div class="message">{{.}} <p>x</p></div>
+                {{/message}}
+
+                <input id="input_phone" type="text" name="phone" placeholder="Digite seu Número de Cel.">
+                <button id="button">Registrar</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://unpkg.com/imask"></script>
+    <script src="/assets/js/maskPhoneInput.js"></script>
+
+{{>partials/footer}}

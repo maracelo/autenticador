@@ -1,14 +1,14 @@
 import { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import jwtDecode from 'jwt-decode';
-import TokenDataType from '../types/TokenDataType';
+import JWTUserDataType from '../types/JWTUserDataType';
 import { User } from '../models/User'; 
-// import { PhoneAuth } from '../models/PhoneAuth';
+import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
 import userRegister from '../helpers/userRegister';
 import userLogin from '../helpers/userLogin';
-import verifyToken from '../helpers/verifyToken';
 import checkDecoded from '../helpers/checkDecoded';
+import checkHasPhoneAuth from '../helpers/checkHasPhoneAuth';
 
 dotenv.config();
 
@@ -30,21 +30,13 @@ export async function login(req: Request, res: Response){
     
     if(response.user){
 
-        /* if(response.user.phone){
-            req.session.token = generateToken({ 
-                name: response.user.name, 
-                email: response.user.email, 
-                phone: response.user.phone 
-            }); 
-
-            return res.status(201).redirect('/phoneauth');
-        }  */
-        
         req.session.token = await generateToken({ 
             name: response.user.name, 
             email: response.user.email,
-            verified_email: response.user.verified_email 
-        });
+            phone: response.user.phone ?? null,
+            verified_email: response.user.verified_email,
+            phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
+        }, 'login(loginController)');
         res.status(201).redirect('/');
     }
 }
@@ -67,21 +59,13 @@ export async function register(req: Request, res: Response){
     
     if(response.user){
 
-        /* if(response.user.phone){
-            req.session.token = generateToken({ 
-                name: response.user.name, 
-                email: response.user.email, 
-                phone: response.user.phone 
-            }); 
-
-            return res.status(201).redirect('/phoneauth');
-        }  */
-
-        req.session.token = generateToken({ 
+        req.session.token = await generateToken({ 
             name: response.user.name, 
-            email: response.user.email, 
-            verified_email: response.user.verified_email
-        });
+            email: response.user.email,
+            phone: response.user.phone ?? null,
+            verified_email: response.user.verified_email,
+            phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
+        }, 'register(LoginController)');
         return res.status(201).redirect('/');
     }
 };
@@ -89,20 +73,25 @@ export async function register(req: Request, res: Response){
 export async function logout(req: Request, res: Response){
     const token = req.session.token;
 
-    const checkRes = await checkDecoded(token);
-    
-    if(checkRes === 'verified'){
-        let decoded: TokenDataType = await jwtDecode(token);
-        
+    const response = await checkDecoded(token);
+
+    if(response && (response.verified_email || response.phone_auth === 'approved')){
+
+        let decoded: JWTUserDataType = await jwtDecode(token);
+
         const user = await User.findOne({ where: {email: decoded.email} });
-        
-        if(user) await user.update({ verified_email: false });
+
+        if(user){
+            if(response.verified_email) await user.update({ verified_email: false });
+            
+            if(response.phone_auth === 'approved'){
+                const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
+                
+                phoneAuth?.update({ otp_id: null, auth: false, status: false });
+            }
+        } 
     }
     
-    req.session.destroy( (err) =>{ console.log(err) } );
+    req.session.destroy( (err) =>{ if(err) console.log(err) } );
     res.redirect('/login');
-
-    /* const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
-    
-    if(phoneAuth) await phoneAuth.update({ auth: false, status: false }); */
 };

@@ -21,10 +21,11 @@ async function userLogin(userInfo: UserInfoType): Promise<DefaultReturnType>{
     if(message) return { message };
 
     if(user) return {user: {
+        id: user.id,
         name: user.name,
         email: user.email,
         verified_email: user.verified_email,
-        /* phone: user.phone ?? undefined */
+        phone: user.phone ?? undefined
     }};
 }
 
@@ -46,10 +47,11 @@ async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<Defaul
     if(!validPassword) return {message};
 
     return {user: {
+        id: user.id,
         name: user.name,
         email: user.email,
         verified_email: user.verified_email,
-        /* phone: user.phone ?? undefined */
+        phone: user.phone ?? undefined
     }};
 }
 
@@ -67,6 +69,7 @@ async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<DefaultRet
     if(!validatedSub) return { message: 'Usuário inválido' };
 
     return {user: {
+        id: user.id,
         name: user.name,
         email: user.email,
         verified_email: true

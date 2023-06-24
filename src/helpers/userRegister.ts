@@ -27,18 +27,16 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<DefaultRe
         const newUser = await User.create({
             name: user.name, 
             email: user.email, 
-            /* phone: user.phone ?? null, */
             password: user.password ?? '',
             sub: user.sub ?? null
         });
 
-        // await PhoneAuth.create({ user_id: newUser.id });
-        
         return {user: {
-            name: user.name, 
-            email: user.email, 
-            verified_email: user.verified_email,
-            /* phone: user.phone ?? undefined */
+            id: newUser.id,
+            name: newUser.name, 
+            email: newUser.email, 
+            verified_email: newUser.verified_email,
+            phone: newUser.phone ?? undefined
         }};
     }
 }
@@ -50,10 +48,6 @@ async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<Defaul
     ) return;
 
     if(!validator.isEmail(userInfo.email)) return { message: 'E-mail inválido' };
-    
-    /* const validatedPhone = phoneNumberValidation(userInfo.phone);
-    
-    if(!validatedPhone) return { message: 'Número de Celular inválido'} */
     
     const user = await User.findOne({ where: {email: userInfo.email} });
     
@@ -84,7 +78,6 @@ async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<Defaul
         name: finalName,
         email: userInfo.email,
         verified_email: false,
-        /* phone: userInfo.phone, */
         password: encryptedPassword
     }};
 }

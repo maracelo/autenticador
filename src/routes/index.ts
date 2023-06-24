@@ -1,8 +1,9 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import * as LoginController from "../controllers/LoginController";
 import * as HomeController from "../controllers/HomeController";
-// import * as PhoneAuthController from "../controllers/PhoneAuthController";
+import * as PhoneAuthController from "../controllers/PhoneAuthController";
 import * as EmailController from "../controllers/EmailController";
+import * as ConfigController from "../controllers/ConfigController";
 import Auth from '../middleware/auth';
 
 const router = Router();
@@ -16,14 +17,14 @@ router.get('/logout', /* Auth.checkJWT, */ LoginController.logout);
 router.get('/verifyemail', Auth.checkVerifiedEmail, EmailController.page);
 router.get('/confirmemail', Auth.checkVerifiedEmail, EmailController.confirm);
 
-/* router.get('/phoneauth', Auth.privateRoute, PhoneAuthController.page);
-router.post('/phoneauth', Auth.privateRoute, PhoneAuthController.verify);
-router.post('/phoneauth_resend', Auth.privateRoute, PhoneAuthController.resend); */
-
-router.get('/test', (req: Request, res: Response) =>{
-    res.render('test');
-});
+router.get('/addphone', Auth.checkPhoneAuth, PhoneAuthController.add);
+router.post('/addphone', Auth.checkPhoneAuth, PhoneAuthController.add)
+router.get('/sendotp', Auth.checkPhoneAuth, Auth.checkPhone, PhoneAuthController.sendOTP);
+router.post('/sendotp', Auth.checkPhoneAuth, Auth.checkPhone, PhoneAuthController.verifyOTP);
+router.post('/resendotp', Auth.checkPhoneAuth, Auth.checkPhone, PhoneAuthController.resendOTP);
 
 router.get('/', Auth.privateRoute, HomeController.home);
+router.get('/config', Auth.privateRoute, ConfigController.config)
+router.post('/config', Auth.privateRoute, ConfigController.config)
 
 export default router;
