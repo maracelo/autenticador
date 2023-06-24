@@ -6,7 +6,9 @@ dotenv.config();
 type sendType = { status?: 'pending', otp_id?: string };
 
 export async function send(phone: string): Promise<sendType>{
-    phone = '+55' + phone;
+    return {status: 'pending', otp_id: 'testando apenas'};
+
+    /* phone = '+55' + phone;
 
     const data = JSON.stringify({
         "originator": "SignOTP",
@@ -30,18 +32,19 @@ export async function send(phone: string): Promise<sendType>{
         .then(function (response: any) {
             return {status: 'pending', otp_id: response.data.otp_id};
         })
-        .catch(function (error: any) {
-            console.log(error);
+        .catch(function (err: any) {
+            console.log(err);
         });
 
-    return {};
+    return {}; */
 }
 
 type verifyType = undefined | 'approved' | 'invalid';
 
 async function verify(code: string, otp_id: string): Promise<verifyType>{
+    return 'approved';
     
-    var data = JSON.stringify({ "otp_id": otp_id, "otp_code": code });
+    /* var data = JSON.stringify({ "otp_id": otp_id, "otp_code": code });
 
     var config = {
         method: 'post',
@@ -63,7 +66,7 @@ async function verify(code: string, otp_id: string): Promise<verifyType>{
             console.log(error);
         });
 
-    return;
+    return; */
 }
 
 async function resend(){

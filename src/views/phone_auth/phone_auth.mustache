@@ -3,7 +3,7 @@
 
     <main>
         <div class="container">
-            <form method="POST" action="/phoneauth">
+            <form action="/sendotp" method="POST">
                 <h2>Ensira o Código</h2>
                 <input id="input_verification_code" name="code" type="string" placeholder="Digite o código">
                 <input type="hidden" name="otp_id" value={{otp_id}}>
@@ -15,6 +15,6 @@
     <div>{{message}}</div>
 
     <script src="https://unpkg.com/imask"></script>
-    <script src="/assets/js/maskVerifyCodeInput.js"></script>
+    <script src="/assets/js/maskOTPInput.js"></script>
 
 {{>partials/footer}}

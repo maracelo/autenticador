@@ -1,15 +1,27 @@
 import jwtDecode from "jwt-decode";
-import TokenDataType from "../types/TokenDataType";
+import JWTUserDataType from "../types/JWTUserDataType";
 import verifyToken from "./verifyToken";
 
-async function checkDecoded(token: any): Promise<void | 'verified' | 'not_verified'>{
+type ResponseType = {
+    verified_email: boolean;
+    phone_auth: 'pending' | 'pending_phone' | 'approved' | null;
+}
+
+async function checkDecoded(token: any): Promise<ResponseType | void>{
+
+    let res: ResponseType = { verified_email: false, phone_auth: null }
+
     if(!verifyToken(token)) return;
 
-    const decoded: TokenDataType = await jwtDecode(token);
+    const decoded: JWTUserDataType = await jwtDecode(token);
 
     if(!decoded || !decoded.name || !decoded.email) return;
+        
+    res.verified_email = decoded.verified_email;
 
-    return decoded.verified_email ? 'verified' : 'not_verified';
+    res.phone_auth = decoded.phone_auth;
+
+    return res;
 }
 
 export default checkDecoded;

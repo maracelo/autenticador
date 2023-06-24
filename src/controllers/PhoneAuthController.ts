@@ -1,52 +1,95 @@
 import { Request, Response } from 'express';
-import jwt_decode from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
 import validator from 'validator';
-import TokenDataType from '../types/TokenDataType';
+import JWTUserDataType from '../types/JWTUserDataType';
 import { User } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
 import phoneNumberValidation from '../helpers/phoneNumberValidation';
 import OTP from '../helpers/OTP';
+import generateToken from '../helpers/generateToken';
+import checkHasPhoneAuth from '../helpers/checkHasPhoneAuth';
 
 type statusType = undefined | 'approved' | 'pending' | 'invalid';
 
-//TODO fazer teste com mock no envio do otp
-//Problema em que otp não tá sendo retornado de OTP
-export async function page(req: Request, res: Response){
+// TODO desfazer depois de terminar os teste de mock do otp generateToken(data, functionLocation) 
+// Problema em que otp não tá sendo retornado de OTP
+
+export async function add(req: Request, res: Response){
+    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
+
+    console.log('decoded.phone(add(PhoneController)): ' + decoded.phone);
+    
+    if(decoded.phone) return res.redirect('/sendotp'); 
+
+    const title = 'Registrar Celular';
+    const pagecss = 'phone_auth.css';
+
+    const phone = phoneNumberValidation(req.body?.phone ?? '');
+
+    if(!phone) return res.render('phone_auth/phone_register', { title, pagecss });
+    
+    const user = await User.findOne({ where: {email: decoded.email} });
+    
+    if(user && !user.phone){
+        await user.update({ phone });
+        
+        req.session.token = await generateToken({
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            verified_email: true,
+            phone_auth: await checkHasPhoneAuth(user.id, user.phone)
+        }, 'add(PhoneController)');
+
+        return res.redirect('/sendotp');
+    } 
+    
+    res.render('phone_auth/phone_register', { title, pagecss });
+}
+
+// TODO fazer phone ser único
+export async function sendOTP(req: Request, res: Response){
+    console.log('entrou em "sendOTP"');
+
     let status: statusType;
     let otp_id: undefined | string;
     let message: undefined | string;
 
-    const decoded: TokenDataType = jwt_decode(req.session.token);
+    const redirect = () => res.redirect('/addphone');
+    
+    const decoded: JWTUserDataType = jwtDecode(req.session.token);
 
-    if(!decoded || !decoded.phone) return res.redirect('/logout');
+    if(!decoded.phone) return redirect;
 
     const phone = phoneNumberValidation(decoded.phone);
 
-    if(!phone) return res.redirect('/logout');
+    if(!phone) return redirect;
 
     const user = await User.findOne({ where: {phone: decoded.phone} });
 
-    if(!user || !user.id) return res.redirect('/logout');
+    if(!user) return redirect;
 
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
 
-    if(!phoneAuth) return res.redirect('/logout');
+    if(!phoneAuth) PhoneAuth.create({ user_id: user.id });
     
-    if(phoneAuth.status == false){
-        const response = await OTP.send(phone);
-        
-        status = response.status;
-        otp_id = response.otp_id;
+    else{
+        if(!phoneAuth.status){
+            const response = await OTP.send(phone);
+            
+            status = response.status;
+            otp_id = response.otp_id;
 
-        phoneAuth.update({ otp_id, status: true });
-        setTimeout(() => { phoneAuth.update({ otp_id: null, status: false }) }, 600000);    
-        
-        if(!status || !otp_id) message = 'Erro no Sistema! Tente novamente mais tarde (send)';
-    }else{
-        message = 'Próximo SMS só em 10min'
+            if(!status || !otp_id) message = 'Erro no Sistema! Tente novamente mais tarde (send temp)';
+            
+            phoneAuth.update({ otp_id, status: true });
+            setTimeout(() => { phoneAuth.update({ otp_id: null, status: false }) }, 600000);  
+        }else{
+            message = 'Próximo SMS só em 10min';
+        }
     }
 
-    res.render('phone_auth', {
+    res.render('phone_auth/phone_auth', {
         title: 'Verificação',
         pagecss: 'phone_auth.css',
         otp_id,
@@ -54,43 +97,52 @@ export async function page(req: Request, res: Response){
     });
 }
 
-export async function verify(req: Request, res: Response){
+export async function verifyOTP(req: Request, res: Response){
     let status: statusType;
     let message: undefined | string;
     const { code } = req.body ?? null;
     
-    const decoded: TokenDataType = await jwt_decode(req.session.token);
+    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
     
     if(!decoded || !decoded.phone) return res.redirect('/logout');
 
     const user = await User.findOne({ where: {phone: decoded.phone} });
 
-    if(!user) return res.redirect('/phoneauth');
+    if(!user) return res.redirect('/addphone');
     
     const sanitizedCode = sanitizeVerificationOTP(code);
 
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
     
-    if(!phoneAuth) return res.redirect('/phoneauth');
+    if(!phoneAuth) return res.redirect('/addphone');
     
-    if(!phoneAuth.otp_id || !sanitizedCode) return res.redirect('/phoneauth');
+    if(!phoneAuth.otp_id || !sanitizedCode) return res.redirect('/addphone');
     
     status = await OTP.verify(sanitizedCode, phoneAuth.otp_id);
+
     
     switch(status){
         case 'approved':
             phoneAuth.update({ auth: true, status: false, otp_id: null });
+            req.session.token = await generateToken({
+                name: user.name,
+                email: user.email,
+                phone: user.phone ?? null,
+                verified_email: true,
+                phone_auth: 'approved'
+            }, '');
+            console.log('entrou em status approved e status é ' + status);
             return res.redirect('/');
         break;
         case 'invalid':
             message = 'Código inválido';
         break;
         default:
-            message = 'Error no Sistema! Tente novamente mais tarde (verify)'
+            message = 'Error no Sistema! Tente novamente mais tarde (verify temp)';
         break;
     }
         
-    res.render('phone_auth', {
+    res.render('phone_auth/phone_auth', {
         title: 'Verificação',
         pagecss: 'phone_auth.css',
         message
@@ -107,6 +159,6 @@ function sanitizeVerificationOTP(code?: string){
     return sanitizedCode;
 }
 
-export async function resend(req: Request, res: Response){
+export async function resendOTP(req: Request, res: Response){
     //TODO
 }
