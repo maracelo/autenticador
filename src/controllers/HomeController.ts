@@ -6,19 +6,14 @@ import JWTUserDataType from "../types/JWTUserDataType";
 
 dotenv.config();
 
-// TODO ajeitar esse user da home
 export async function home(req: Request, res: Response){
     const token = req.session.token;
 
-    const decoded: JWTUserDataType = await jwt_decode(token);
+    const user: JWTUserDataType = await jwt_decode(token);
 
-    const user = await User.findOne({where: { email: decoded.email } });
-    
-    if(user){
-        return res.render('home', {
-            title: 'Home',
-            pagecss: 'home.css',
-            user,
-        });
-    }
+    return res.render('home', {
+        title: 'Home',
+        pagecss: 'home.css',
+        user,
+    });
 }
