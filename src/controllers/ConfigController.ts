@@ -14,6 +14,8 @@ dotenv.config();
 
 export async function config(req: Request, res: Response){
     const user: JWTUserDataType = await jwtDecode(req.session.token);
+
+    console.log('config decoded: ' + user.phone_auth);
     
     const userDb = await User.findOne({ where: {email: user.email} });
     
@@ -48,7 +50,7 @@ type configType = {
 
 async function changeConfig(user: any, newInfo: configType){
     let newToken;
-    let redirect = false;
+    let redirect: boolean = false;
 
     let {name, /* email, */ new_password, current_password, phone_auth_toggle} = newInfo;
     
@@ -85,7 +87,7 @@ async function changeConfig(user: any, newInfo: configType){
     else if(!phone_auth_toggle && hasPhoneAuth){
         const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
 
-        phoneAuth?.destroy();
+        await phoneAuth?.destroy();
 
         tokenContent.phone_auth = null;
 
