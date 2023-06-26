@@ -79,6 +79,8 @@ export async function logout(req: Request, res: Response){
 
         let decoded: JWTUserDataType = await jwtDecode(token);
 
+        console.log('LoginController: ' + JSON.stringify(decoded));
+
         const user = await User.findOne({ where: {email: decoded.email} });
 
         if(user){

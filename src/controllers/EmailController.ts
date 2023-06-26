@@ -25,11 +25,11 @@ export async function confirm(req: Request, res: Response){
     const token: string = req.query.confirm as string | undefined  ?? '';
 
     if(!verifyToken(token)) return res.redirect('/verifyemail');
-
-    const confirmInfo: {name: string, email: string} = jwtDecode(token);
-
-    const infoFromSession: JWTUserDataType = jwtDecode(req.session.token);
-
+    
+    const confirmInfo: {name: string, email: string} = await jwtDecode(token);
+    
+    const infoFromSession: JWTUserDataType = await jwtDecode(req.session.token);
+    
     if(confirmInfo.email !==  infoFromSession.email) return res.redirect('/verifyemail');
 
     const user = await User.findOne({ where: {email: confirmInfo.email} });

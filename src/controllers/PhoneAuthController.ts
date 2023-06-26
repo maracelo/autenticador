@@ -45,7 +45,6 @@ export async function add(req: Request, res: Response){
     res.render('phone_auth/phone_register', { title, pagecss });
 }
 
-// TODO fazer phone ser único
 export async function sendOTP(req: Request, res: Response){
     let status: statusType;
     let otp_id: undefined | string;
