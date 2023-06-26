@@ -106,5 +106,3 @@ async function checkPhone(req: Request, res: Response, next: NextFunction){
 }
 
 export default Auth;
-
-// TODO Password to SSO accounts to have a new option to enter in default login

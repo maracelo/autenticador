@@ -18,8 +18,11 @@
 
                 <input type="text" name="name" value="{{user.name}}">
                 <input type="email" name="email" value="{{user.email}}">
-                <input type="password" name="new_password">
-                <input type="password" name="old_password">
+                <input type="password" name="new_password" placeholder="Nova Senha">
+                {{#noPassword}}
+                    <input type="password" name="current_password" placeholder="Senha Atual">
+                {{/noPassword}}
+
                 <label> Autenticação por Celular 
                     {{#checked}}
                         <input type="checkbox" checked name="phone_auth_toggle">
@@ -28,6 +31,7 @@
                         <input type="checkbox" name="phone_auth_toggle">
                     {{/checked}}
                 </label>
+
                 <button id="button">Enviar</button>
             </form>
         </div>

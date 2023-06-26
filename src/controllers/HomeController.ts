@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { User } from '../models/User';
 import dotenv from 'dotenv';
 import jwt_decode from 'jwt-decode';
 import JWTUserDataType from "../types/JWTUserDataType";
 
 dotenv.config();
+
+// TODO olhar os TODO's
 
 export async function home(req: Request, res: Response){
     const token = req.session.token;

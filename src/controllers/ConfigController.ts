@@ -10,13 +10,9 @@ import checkHasPhoneAuth from "../helpers/checkHasPhoneAuth";
 
 dotenv.config();
 
-// TODO checar o pq na página config não tá fazendo alteração no checkbox de phoneauth
-
 export async function config(req: Request, res: Response){
     const user: JWTUserDataType = await jwtDecode(req.session.token);
 
-    console.log('config decoded: ' + user.phone_auth);
-    
     const userDb = await User.findOne({ where: {email: user.email} });
     
     if(!userDb) return res.redirect('/logout');
@@ -36,6 +32,7 @@ export async function config(req: Request, res: Response){
         title: 'Configurações',
         pagecss: 'config.css',
         user,
+        noPassword: userDb.password ? true : false,
         checked: await checkHasPhoneAuth(userDb.id, userDb.phone) 
     });
 }
@@ -59,10 +56,16 @@ async function changeConfig(user: any, newInfo: configType){
     // TODO will be add in future
     // if(email) 'change a verification to email to confirm';
 
-    if( new_password && current_password && await bcrypt.compare(current_password, user.password) ){
+    if( 
+        new_password 
+        && (
+            ( current_password && await bcrypt.compare(current_password, user.password) ) 
+            || ( user.sub && !user.password && !current_password) 
+        )
+    ){
+        const encryptedPassword = await bcrypt.hash(new_password, 8);
 
-        const encryptedPassword = await bcrypt.hash(new_password, process.env.JWT_SECRET_KEY as string);
-        user.password = encryptedPassword
+        await user.update({ password: encryptedPassword });
     }
 
     const hasPhoneAuth = await checkHasPhoneAuth(user.id, user.phone);

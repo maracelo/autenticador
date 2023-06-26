@@ -17,8 +17,6 @@ type statusType = undefined | 'approved' | 'pending' | 'invalid';
 export async function add(req: Request, res: Response){
     const decoded: JWTUserDataType = await jwtDecode(req.session.token);
 
-    console.log('decoded.phone(add(PhoneController)): ' + decoded.phone);
-    
     if(decoded.phone) return res.redirect('/sendotp'); 
 
     const title = 'Registrar Celular';
@@ -47,10 +45,7 @@ export async function add(req: Request, res: Response){
     res.render('phone_auth/phone_register', { title, pagecss });
 }
 
-// TODO fazer phone ser único
 export async function sendOTP(req: Request, res: Response){
-    console.log('entrou em "sendOTP"');
-
     let status: statusType;
     let otp_id: undefined | string;
     let message: undefined | string;
@@ -131,7 +126,7 @@ export async function verifyOTP(req: Request, res: Response){
                 verified_email: true,
                 phone_auth: 'approved'
             }, '');
-            console.log('entrou em status approved e status é ' + status);
+            
             return res.redirect('/');
         break;
         case 'invalid':

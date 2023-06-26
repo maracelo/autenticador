@@ -12,7 +12,7 @@ router.get('/login', Auth.checkJWT, LoginController.login);
 router.post('/login', Auth.checkJWT, LoginController.login);
 router.get('/register', Auth.checkJWT, LoginController.register);
 router.post('/register', Auth.checkJWT, LoginController.register);
-router.get('/logout', /* Auth.checkJWT, */ LoginController.logout);
+router.get('/logout', LoginController.logout);
 
 router.get('/verifyemail', Auth.checkVerifiedEmail, EmailController.page);
 router.get('/confirmemail', Auth.checkVerifiedEmail, EmailController.confirm);
