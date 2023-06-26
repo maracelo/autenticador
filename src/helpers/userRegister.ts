@@ -4,9 +4,7 @@ import UserInfoType from '../types/UserInfoType';
 import DefaultReturnType from '../types/DefaultReturnType';
 import { User } from '../models/User';
 import validatePassword from './validatePassword';
-// import phoneNumberValidation from './phoneNumberValidation';
 import sanitizeName from './sanitizeName';
-// import { PhoneAuth } from '../models/PhoneAuth';
 
 async function userRegister(userInfo: UserInfoType|undefined): Promise<DefaultReturnType>{
     let response;
@@ -44,7 +42,7 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<DefaultRe
 async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<DefaultReturnType>{
     if(
         !userInfo || !userInfo.name || !userInfo.email || 
-        !userInfo.password || !userInfo.password_confirmation/*  || !userInfo.phone */
+        !userInfo.password || !userInfo.password_confirmation
     ) return;
 
     if(!validator.isEmail(userInfo.email)) return { message: 'E-mail inválido' };

@@ -2,11 +2,12 @@ import { Request, Response } from "express";
 import jwtDecode from "jwt-decode";
 import JWTUserDataType from "../types/JWTUserDataType";
 import { User } from "../models/User";
-import { PhoneAuth } from "../models/PhoneAuth";
 import sendEmailVerification from "../helpers/sendEmailVerification";
 import generateToken from "../helpers/generateToken";
 import verifyToken from "../helpers/verifyToken";
 import checkHasPhoneAuth from "../helpers/checkHasPhoneAuth";
+
+// TODO fazer teste com smtp de verdade
 
 export async function page(req: Request, res: Response){
     const decoded: JWTUserDataType = await jwtDecode(req.session.token);

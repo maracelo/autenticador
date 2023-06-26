@@ -10,13 +10,9 @@ import checkHasPhoneAuth from "../helpers/checkHasPhoneAuth";
 
 dotenv.config();
 
-// TODO checar o pq na página config não tá fazendo alteração no checkbox de phoneauth
-
 export async function config(req: Request, res: Response){
     const user: JWTUserDataType = await jwtDecode(req.session.token);
 
-    console.log('config decoded: ' + user.phone_auth);
-    
     const userDb = await User.findOne({ where: {email: user.email} });
     
     if(!userDb) return res.redirect('/logout');
