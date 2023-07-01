@@ -5,9 +5,11 @@ dotenv.config();
 
 type sendType = { status?: 'pending', otp_id?: string };
 
-export async function send(phone: string): Promise<sendType>{
-    return {status: 'pending', otp_id: 'testando apenas'};
+// TODO Problema em que otp não tá sendo retornado de OTP
 
+export async function send(phone: string): Promise<sendType>{
+    return {status: 'pending', otp_id: 'test'};
+    
     /* phone = '+55' + phone;
 
     const data = JSON.stringify({
@@ -25,7 +27,7 @@ export async function send(phone: string): Promise<sendType>{
             'Authorization': `Bearer ${process.env.D7NETWORKS_TOKEN as string}`, 
             'Content-Type': 'application/json'
         },
-        data : data
+        data
     };
 
     axios(config)
@@ -44,16 +46,16 @@ type verifyType = undefined | 'approved' | 'invalid';
 async function verify(code: string, otp_id: string): Promise<verifyType>{
     return 'approved';
     
-    /* var data = JSON.stringify({ "otp_id": otp_id, "otp_code": code });
+    /* const data = JSON.stringify({ "otp_id": otp_id, "otp_code": code });
 
-    var config = {
+    const config = {
         method: 'post',
         url: 'https://api.d7networks.com/verify/v1/otp/verify-otp',
         headers: { 
             'Authorization': `Bearer ${process.env.D7NETWORKS_TOKEN as string}`, 
             'Content-Type': 'application/json'
         },
-        data : data
+        data
     };
 
     axios(config)
@@ -64,13 +66,47 @@ async function verify(code: string, otp_id: string): Promise<verifyType>{
         })
         .catch(function (error: any) {
             console.log(error);
+
+            return 'error';
         });
 
     return; */
 }
 
-async function resend(){
-    //TODO
+type resendType = { otp_id?: string, status?: 'pending', message?: string };
+
+async function resend(otp_id: string): Promise<resendType>{
+    return {status: 'pending'}; // temp
+
+    /* const axios = require('axios');
+    const data = JSON.stringify({ otp_id });
+
+    const config = {
+        method: 'post',
+        url: 'https://api.d7networks.com/verify/v1/otp/resend-otp',
+        headers: { 
+            'Authorization': `Bearer ${process.env.D7NETWORKS_TOKEN as string}`, 
+            'Content-Type': 'application/json'
+        },
+        data
+    };
+
+    axios(config)
+        .then(function (response: any) {
+
+            if(response.data.status) return {status: 'pending'};
+
+            else if(response.data.detail.loc) console.log(response.data.detail);
+            
+            else{
+                let errMessage = response.data.detail.split(' ');
+
+                return { message: errMessage.contains('Frequent') ? 'frequent' : 'expired' }
+            } 
+        })
+        .catch(function (error: any){ console.log(error) });
+
+    return {message: 'error'}; */
 }
 
 export default {send, verify, resend};

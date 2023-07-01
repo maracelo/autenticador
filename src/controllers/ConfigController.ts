@@ -79,10 +79,9 @@ async function changeConfig(user: any, newInfo: configType){
     };
 
     if(phone_auth_toggle && !hasPhoneAuth){
-
         await PhoneAuth.create({ user_id: user.id });
-        
-        newToken = await generateToken(tokenContent, 'changeConfig1(ConfigController)');
+
+        newToken = await generateToken(tokenContent);
 
         redirect = true;
     } 
@@ -94,7 +93,7 @@ async function changeConfig(user: any, newInfo: configType){
 
         tokenContent.phone_auth = null;
 
-        newToken = await generateToken(tokenContent, 'changeConfig2(ConfigController)');
+        newToken = await generateToken(tokenContent);
     } 
 
     return { newToken, redirect };

@@ -6,15 +6,42 @@
             <form action="/sendotp" method="POST">
                 <h2>Ensira o Código</h2>
                 <input id="input_OTP" name="code" type="string" placeholder="Digite o código">
-                <input type="hidden" name="otp_id" value={{otp_id}}>
+                <input id="otp_id" type="hidden" name="otp_id" value={{otp_id}}>
                 <button>Enviar Código</button>
             </form>
+            <br> <!-- temp br -->
+            <!-- {{#otp_id}} -->
+                <button id="resend">Reenviar</button>
+            <!-- {{/otp_id}} -->
         </div>
     </main>
 
     <div>{{message}}</div>
 
     <script src="https://unpkg.com/imask"></script>
+    <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
     <script src="/assets/js/maskOTPInput.js"></script>
+    <script>
+        const resendButton = document.querySelector('#resend');
+        const otp_id = document.querySelector('#otp_id').value;
+
+        resendButton.addEventListener('click', async (el) =>{
+
+            if(otp_id){
+                const response = await axios({
+                    method: 'post',
+                    url: 'http://localhost:3000/resend',
+                    headers: {
+                        'Content_type': 'application/json'
+                    },
+                    data: {
+                        otp_id
+                    }
+                });
+    
+                alert(response);
+            }
+        });
+    </script>
 
 {{>partials/footer}}

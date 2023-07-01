@@ -1,8 +1,6 @@
 import JWT from 'jsonwebtoken';
 
-function generateToken(data: any, functionLocation : string){
-    // console.log(`${functionLocation}, ${JSON.stringify(data)}`);
-
+function generateToken(data: any){
     try{
         return JWT.sign(data, process.env.JWT_SECRET_KEY as string)
     }catch(err){

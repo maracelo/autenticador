@@ -24,7 +24,7 @@ router.post('/sendotp', Auth.checkPhoneAuth, Auth.checkPhone, PhoneAuthControlle
 router.post('/resendotp', Auth.checkPhoneAuth, Auth.checkPhone, PhoneAuthController.resendOTP);
 
 router.get('/', Auth.privateRoute, HomeController.home);
-router.get('/config', Auth.privateRoute, ConfigController.config)
-router.post('/config', Auth.privateRoute, ConfigController.config)
+router.get('/config', Auth.privateRoute, ConfigController.config);
+router.post('/config', Auth.privateRoute, ConfigController.config);
 
 export default router;

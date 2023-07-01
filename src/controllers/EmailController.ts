@@ -44,7 +44,7 @@ export async function confirm(req: Request, res: Response){
         phone: user.phone ?? null,
         verified_email: true,
         phone_auth: await checkHasPhoneAuth(user.id, user.phone)
-    }, 'confirm(EmailController)');
+    });
 
     res.redirect('/verifyemail');
 }
