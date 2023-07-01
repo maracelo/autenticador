@@ -4,7 +4,7 @@ import generateToken from './generateToken';
 
 async function sendEmailVerification(user: JWTUserDataType){
 
-    const token = generateToken({ name: user.name, email: user.email }, '');
+    const token = generateToken({ name: user.name, email: user.email });
 
     const transport = nodemailer.createTransport({
         host: "sandbox.smtp.mailtrap.io",

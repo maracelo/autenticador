@@ -5,8 +5,6 @@ import JWTUserDataType from "../types/JWTUserDataType";
 
 dotenv.config();
 
-// TODO olhar os TODO's
-
 export async function home(req: Request, res: Response){
     const token = req.session.token;
 

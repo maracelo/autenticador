@@ -97,7 +97,7 @@ async function checkPhone(req: Request, res: Response, next: NextFunction){
             phone: null,
             verified_email: true,
             phone_auth: 'pending_phone'
-        }, 'checkPhone(auth)');
+        });
 
         return res.redirect('/addphone');
     }

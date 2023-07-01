@@ -36,7 +36,7 @@ export async function login(req: Request, res: Response){
             phone: response.user.phone ?? null,
             verified_email: response.user.verified_email,
             phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
-        }, 'login(loginController)');
+        });
         res.status(201).redirect('/');
     }
 }
@@ -65,7 +65,7 @@ export async function register(req: Request, res: Response){
             phone: response.user.phone ?? null,
             verified_email: response.user.verified_email,
             phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
-        }, 'register(LoginController)');
+        });
         return res.status(201).redirect('/');
     }
 };
@@ -78,8 +78,6 @@ export async function logout(req: Request, res: Response){
     if(response && (response.verified_email || response.phone_auth === 'approved')){
 
         let decoded: JWTUserDataType = await jwtDecode(token);
-
-        console.log('LoginController: ' + JSON.stringify(decoded));
 
         const user = await User.findOne({ where: {email: decoded.email} });
 

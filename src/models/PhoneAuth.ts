@@ -5,7 +5,8 @@ interface PhoneAuthInstance extends Model{
     user_id: number;
     otp_id: string;
     auth: boolean;
-    status: boolean;
+    status: 'pending' | 'approved' | null;
+    expires: string;
 }
 
 export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
@@ -21,8 +22,12 @@ export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
         defaultValue: false,
     },
     status: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    expires: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
     tableName: 'phone_auth',
