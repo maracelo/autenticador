@@ -48,3 +48,7 @@ input, button{
     width: 100%;
     padding: 15px;
 }
+
+#resend{
+    margin-top: 20px;
+}

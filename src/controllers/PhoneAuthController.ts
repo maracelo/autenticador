@@ -44,6 +44,7 @@ export async function add(req: Request, res: Response){
 }
 
 // TODO refatorar
+// TODO separar helpers por pastas
 
 export async function sendOTP(req: Request, res: Response){
     let otp_id: undefined | string;
@@ -76,6 +77,8 @@ export async function sendOTP(req: Request, res: Response){
     if(!phoneAuth) return res.redirect('/config');
 
     else{
+        otp_id = phoneAuth.otp_id;
+
         if(!phoneAuth.expires){
             await send(phone, phoneAuth);
         }else{
@@ -83,6 +86,7 @@ export async function sendOTP(req: Request, res: Response){
                 await phoneAuth.destroy();
                 const newPhoneAuth = await PhoneAuth.create({ user_id: user.id });
                 await send(phone, newPhoneAuth);
+                otp_id = newPhoneAuth.otp_id;
             } 
 
             else message = 'Próximo código só em 10min. Tente reenviar'; 
