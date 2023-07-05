@@ -1,6 +1,9 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 import JWTUserDataType from "../types/JWTUserDataType";
 import generateToken from './generateToken';
+
+dotenv.config();
 
 async function sendEmailVerification(user: JWTUserDataType){
 
@@ -9,7 +12,7 @@ async function sendEmailVerification(user: JWTUserDataType){
     const transport = nodemailer.createTransport({
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
-        auth: { user: "5e8f596b37f011", pass: "5bb30ff5c1369d" }
+        auth: { user: process.env.MAILTRAP_USER as string, pass: process.env.MAILTRAP_PASS }
     });
 
     const html = buildHTML(token);    

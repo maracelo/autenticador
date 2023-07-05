@@ -87,7 +87,7 @@ export async function logout(req: Request, res: Response){
             if(response.phone_auth === 'approved'){
                 const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
                 
-                phoneAuth?.update({ otp_id: null, auth: false, status: false });
+                phoneAuth?.update({ otp_id: null, auth: false, status: null });
             }
         } 
     }
