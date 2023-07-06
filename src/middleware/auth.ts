@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwtDecode from 'jwt-decode';
-import JWTUserDataType from '../types/JWTUserDataType';
+import JWTUserData from '../types/JWTUserData';
 import verifyToken from '../helpers/verifyToken';
 import checkDecoded from '../helpers/checkDecoded';
 import generateToken from '../helpers/generateToken';
@@ -84,7 +84,7 @@ async function checkPhoneAuth(req: Request, res: Response, next: NextFunction){
 }
 
 async function checkPhone(req: Request, res: Response, next: NextFunction){
-    const decoded: JWTUserDataType = await jwtDecode(await req.session.token);
+    const decoded: JWTUserData = await jwtDecode(await req.session.token);
 
     if(
         !decoded.phone

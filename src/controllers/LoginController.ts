@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import jwtDecode from 'jwt-decode';
-import JWTUserDataType from '../types/JWTUserDataType';
+import JWTUserData from '../types/JWTUserData';
 import { User } from '../models/User'; 
 import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
@@ -77,7 +77,7 @@ export async function logout(req: Request, res: Response){
 
     if(response && (response.verified_email || response.phone_auth === 'approved')){
 
-        let decoded: JWTUserDataType = await jwtDecode(token);
+        let decoded: JWTUserData = await jwtDecode(token);
 
         const user = await User.findOne({ where: {email: decoded.email} });
 

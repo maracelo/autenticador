@@ -1,12 +1,12 @@
 import validator from 'validator';
 import bcrypt from 'bcrypt';
-import UserInfoType from '../types/UserInfoType';
-import DefaultReturnType from '../types/DefaultReturnType';
+import UserInfo from '../types/UserInfo';
+import DefaultReturn from '../types/DefaultReturn';
 import { User } from '../models/User';
 import validatePassword from './validatePassword';
 import sanitizeName from './sanitizeName';
 
-async function userRegister(userInfo: UserInfoType|undefined): Promise<DefaultReturnType>{
+async function userRegister(userInfo: UserInfo|undefined): Promise<DefaultReturn>{
     let response;
     
     if(!userInfo) return { message: 'Erro no Sistema' };
@@ -15,35 +15,35 @@ async function userRegister(userInfo: UserInfoType|undefined): Promise<DefaultRe
     
     if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
-    if(!response || (!response.user && !response.message)) return;
+    if(!response || !response.user || !response.message) return { message: '' };
 
     const {user, message} = response;
 
     if(message) return { message };
 
-    if(user){
-        const newUser = await User.create({
-            name: user.name, 
-            email: user.email, 
-            password: user.password ?? '',
-            sub: user.sub ?? null
-        });
+    const newUser = await User.create({
+        name: user.name, 
+        email: user.email, 
+        password: user.password ?? '',
+        sub: user.sub ?? null
+    });
 
-        return {user: {
+    return { message: '',
+        user: {
             id: newUser.id,
             name: newUser.name, 
             email: newUser.email, 
             verified_email: newUser.verified_email,
             phone: newUser.phone ?? undefined
-        }};
-    }
+        }
+    };
 }
 
-async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<DefaultReturnType>{
+async function defaultUserInfoValidation(userInfo: UserInfo): Promise<DefaultReturn>{
     if(
         !userInfo || !userInfo.name || !userInfo.email || 
         !userInfo.password || !userInfo.password_confirmation
-    ) return;
+    ) return { message: '' };
 
     if(!validator.isEmail(userInfo.email)) return { message: 'E-mail inválido' };
     
@@ -80,7 +80,7 @@ async function defaultUserInfoValidation(userInfo: UserInfoType): Promise<Defaul
     }};
 }
 
-async function SSOUserInfoValidation(userInfo: UserInfoType): Promise<DefaultReturnType>{
+async function SSOUserInfoValidation(userInfo: UserInfo): Promise<DefaultReturn>{
     if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.sub){
         return { message: 'Esse tipo de Login está indisponível no momento, tente mais tarde' };
     }

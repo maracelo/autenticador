@@ -1,11 +1,11 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import JWTUserDataType from "../types/JWTUserDataType";
+import JWTUserData from "../types/JWTUserData";
 import generateToken from './generateToken';
 
 dotenv.config();
 
-async function sendEmailVerification(user: JWTUserDataType){
+async function sendEmailVerification(user: JWTUserData){
 
     const token = generateToken({ name: user.name, email: user.email });
 
@@ -15,7 +15,7 @@ async function sendEmailVerification(user: JWTUserDataType){
         auth: { user: process.env.MAILTRAP_USER as string, pass: process.env.MAILTRAP_PASS }
     });
 
-    const html = buildHTML(token);    
+    const html = buildHTML(token);
 
     try{
         transport.sendMail({

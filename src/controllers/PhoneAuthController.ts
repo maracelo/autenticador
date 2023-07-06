@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import jwtDecode from 'jwt-decode';
 import validator from 'validator';
-import JWTUserDataType from '../types/JWTUserDataType';
+import JWTUserData from '../types/JWTUserData';
 import { User } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
 import phoneNumberValidation from '../helpers/phoneNumberValidation';
@@ -10,10 +10,8 @@ import generateToken from '../helpers/generateToken';
 import checkHasPhoneAuth from '../helpers/checkHasPhoneAuth';
 import getExpiresDate from '../helpers/getExpiresDate';
 
-type statusType = undefined | 'approved' | 'pending' | 'invalid';
-
 export async function add(req: Request, res: Response){
-    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
+    const decoded: JWTUserData = await jwtDecode(req.session.token);
 
     if(decoded.phone) return res.redirect('/sendotp'); 
 
@@ -43,16 +41,13 @@ export async function add(req: Request, res: Response){
     res.render('phone_auth/phone_register', { title, pagecss });
 }
 
-// TODO refatorar
-// TODO separar helpers por pastas
-
 export async function sendOTP(req: Request, res: Response){
     let otp_id: undefined | string;
     let message: undefined | string;
 
     const redirect = () => res.redirect('/addphone');
     
-    const decoded: JWTUserDataType = jwtDecode(req.session.token);
+    const decoded: JWTUserData = jwtDecode(req.session.token);
 
     if(!decoded.phone) return redirect;
 
@@ -103,11 +98,11 @@ export async function sendOTP(req: Request, res: Response){
 function isPhoneAuthExpired(expires: string){ return new Date() > new Date(expires); }
 
 export async function verifyOTP(req: Request, res: Response){
-    let status: statusType;
+    let status: undefined | 'approved' | 'pending' | 'invalid';
     let message: undefined | string;
     const { code } = req.body ?? null;
     
-    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
+    const decoded: JWTUserData = await jwtDecode(req.session.token);
     
     if(!decoded || !decoded.phone) return res.redirect('/logout');
 

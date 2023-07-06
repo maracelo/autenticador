@@ -3,11 +3,11 @@ import axios from 'axios';
 
 dotenv.config();
 
-type sendType = { status?: 'pending', otp_id?: string };
+type Send = { status?: 'pending', otp_id?: string };
 
 // TODO Problema em que otp não tá sendo retornado de OTP
 
-export async function send(phone: string): Promise<sendType>{
+export async function send(phone: string): Promise<Send>{
     return {status: 'pending', otp_id: 'test'};
     
     /* phone = '+55' + phone;
@@ -41,9 +41,9 @@ export async function send(phone: string): Promise<sendType>{
     return {}; */
 }
 
-type verifyType = undefined | 'approved' | 'invalid';
+type Verify = undefined | 'approved' | 'invalid';
 
-async function verify(code: string, otp_id: string): Promise<verifyType>{
+async function verify(code: string, otp_id: string): Promise<Verify>{
     return 'approved';
     
     /* const data = JSON.stringify({ "otp_id": otp_id, "otp_code": code });
@@ -73,9 +73,9 @@ async function verify(code: string, otp_id: string): Promise<verifyType>{
     return; */
 }
 
-type resendType = { otp_id?: string, status?: 'pending', message?: string };
+type Resend = { otp_id?: string, status?: 'pending', message?: string };
 
-async function resend(otp_id: string): Promise<resendType>{
+async function resend(otp_id: string): Promise<Resend>{
     return {status: 'pending'}; // temp
 
     /* const axios = require('axios');

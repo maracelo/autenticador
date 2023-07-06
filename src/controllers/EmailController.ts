@@ -1,16 +1,14 @@
 import { Request, Response } from "express";
 import jwtDecode from "jwt-decode";
-import JWTUserDataType from "../types/JWTUserDataType";
+import JWTUserData from "../types/JWTUserData";
 import { User } from "../models/User";
 import sendEmailVerification from "../helpers/sendEmailVerification";
 import generateToken from "../helpers/generateToken";
 import verifyToken from "../helpers/verifyToken";
 import checkHasPhoneAuth from "../helpers/checkHasPhoneAuth";
 
-// TODO fazer teste com smtp de verdade
-
 export async function page(req: Request, res: Response){
-    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
+    const decoded: JWTUserData = await jwtDecode(req.session.token);
 
     const sendEmail = await sendEmailVerification(decoded)
 
@@ -28,9 +26,9 @@ export async function confirm(req: Request, res: Response){
     
     const confirmInfo: {name: string, email: string} = await jwtDecode(token);
     
-    const infoFromSession: JWTUserDataType = await jwtDecode(req.session.token);
+    const infoFromSession: JWTUserData = await jwtDecode(req.session.token);
     
-    if(confirmInfo.email !==  infoFromSession.email) return res.redirect('/verifyemail');
+    if(confirmInfo.email !== infoFromSession.email) return res.redirect('/verifyemail');
 
     const user = await User.findOne({ where: {email: confirmInfo.email} });
 

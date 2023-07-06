@@ -1,4 +1,4 @@
-type UserInfoType = undefined | {
+type UserInfo = undefined | {
     name?: string;
     email: string;
     phone?: string;
@@ -7,4 +7,4 @@ type UserInfoType = undefined | {
     sub?: string;
 }
 
-export default UserInfoType;
+export default UserInfo;
