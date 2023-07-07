@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
 import dotenv from 'dotenv';
-import jwtDecode from 'jwt-decode';
-import JWTUserData from '../types/JWTUserData';
 import { User } from '../models/User'; 
 import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
@@ -77,9 +75,7 @@ export async function logout(req: Request, res: Response){
 
     if(response && (response.verified_email || response.phone_auth === 'approved')){
 
-        let decoded: JWTUserData = await jwtDecode(token);
-
-        const user = await User.findOne({ where: {email: decoded.email} });
+        const user = await User.findOne({ where: {email: response.email} });
 
         if(user){
             if(response.verified_email) await user.update({ verified_email: false });
@@ -87,7 +83,7 @@ export async function logout(req: Request, res: Response){
             if(response.phone_auth === 'approved'){
                 const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
                 
-                phoneAuth?.update({ otp_id: null, auth: false, status: null });
+                phoneAuth?.update({ otp_id: null, auth: false, status: 'pending' });
             }
         } 
     }
