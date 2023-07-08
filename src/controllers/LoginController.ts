@@ -18,10 +18,6 @@ export async function login(req: Request, res: Response){
 
     if(!response) return res.render('login/login', { title, pagecss });
 
-    if(!response.user && !response.message){
-        return res.status(500).render('login/login', { title, pagecss, message: 'Erro no Sistema'});
-    }
-
     if(response.message){
         return res.render('login/login', { title, pagecss, message: response.message });
     }
@@ -37,6 +33,8 @@ export async function login(req: Request, res: Response){
         });
         res.status(201).redirect('/');
     }
+
+    return res.render('login/login', { title, pagecss, message: response?.message ?? undefined});
 }
 
 export async function register(req: Request, res: Response){
@@ -46,10 +44,6 @@ export async function register(req: Request, res: Response){
     const response = await userRegister(req.body);
 
     if(!response) return res.render('login/register', { title, pagecss });
-
-    if(!response.user && !response.message){
-        return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
-    }
 
     if(response.message){
         return res.render('login/register', { title, pagecss, message: response.message });
@@ -66,6 +60,8 @@ export async function register(req: Request, res: Response){
         });
         return res.status(201).redirect('/');
     }
+
+    return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
 };
 
 export async function logout(req: Request, res: Response){
