@@ -67,7 +67,7 @@ export async function sendOTP(req: Request, res: Response){
         let response = await send(phone, phoneAuth, user);
         
         if(response.token) req.session.token = response.token; 
-        otp_id = response.token ?? undefined;
+        otp_id = response.otp_id ?? undefined;
         message = response.message ?? undefined;
     }else{
         if( (new Date()) > (new Date(phoneAuth.expires)) ){
@@ -76,7 +76,7 @@ export async function sendOTP(req: Request, res: Response){
             let response = await send(phone, newPhoneAuth, user);
 
             if(response.token) req.session.token = response.token;
-            otp_id = response.token ?? undefined;
+            otp_id = response.otp_id ?? undefined;
             message = response.message ?? undefined;
         } 
         else message = 'Próximo código só em 10min. Tente reenviar'; 
@@ -178,8 +178,8 @@ export async function resendOTP(req: Request, res: Response){
     
     let defaultErrMessage = 'Erro no Sistema! tente novamente mais tarde';
 
-    const json = (message: string) => res.json({ message }).redirect('/sendotp');;
-    
+    const json = (message: string) => res.json({ message });
+
     if(!req.body.otp_id) return json( 'otp_id não enviado' );
 
     const phoneAuth = await PhoneAuth.findOne({ where: {otp_id: req.body.otp_id} });                                   
@@ -208,5 +208,5 @@ export async function resendOTP(req: Request, res: Response){
         await phoneAuth.update({ otp_id: new_otp_id });
     } 
 
-    res.json({ new_otp_id, message }).redirect('/sendotp');
+    res.json({ new_otp_id, message });
 }

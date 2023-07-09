@@ -20,27 +20,6 @@
     <script src="https://unpkg.com/imask"></script>
     <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
     <script src="/assets/js/maskOTPInput.js"></script>
-    <script>
-        const resendButton = document.querySelector('#resend');
-        const otp_id = document.querySelector('#otp_id').value;
-
-        resendButton.addEventListener('click', async (el) =>{
-
-            if(otp_id){
-                const response = await axios({
-                    method: 'post',
-                    url: 'http://localhost:3000/resend',
-                    headers: {
-                        'Content_type': 'application/json'
-                    },
-                    data: {
-                        otp_id
-                    }
-                });
-    
-                alert(response);
-            }
-        });
-    </script>
+    <script src="/assets/js/resendOTP.js"></script>
 
 {{>partials/footer}}

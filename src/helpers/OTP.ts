@@ -8,7 +8,7 @@ type Send = { status?: 'pending', otp_id?: string };
 // TODO Problema em que otp não tá sendo retornado de OTP
 
 export async function send(phone: string): Promise<Send>{
-    return {status: 'pending', otp_id: 'test'};
+    return {status: 'pending', otp_id: 'test'}; // temp
     
     /* phone = '+55' + phone;
 
@@ -44,7 +44,7 @@ export async function send(phone: string): Promise<Send>{
 type Verify = undefined | 'approved' | 'invalid';
 
 async function verify(code: string, otp_id: string): Promise<Verify>{
-    return 'approved';
+    return 'approved'; // temp
     
     /* const data = JSON.stringify({ "otp_id": otp_id, "otp_code": code });
 
@@ -76,7 +76,7 @@ async function verify(code: string, otp_id: string): Promise<Verify>{
 type Resend = { otp_id?: string, status?: 'pending', message?: string };
 
 async function resend(otp_id: string): Promise<Resend>{
-    return {status: 'pending'}; // temp
+    return {status: 'pending', otp_id: otp_id + '2'}; // temp
 
     /* const axios = require('axios');
     const data = JSON.stringify({ otp_id });
