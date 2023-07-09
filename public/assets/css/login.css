@@ -27,17 +27,26 @@ form{
     width: 100%;
 }
 
-button{
+button, #login_demo{
     background-color: #1D3461;
     color: #fff;
     border: none; outline: none;
     font-weight: bold;
 }
 
-input, button{
+input, button, #login_demo{
     width: 100%;
     padding: 15px;
     margin-bottom: 20px;
+}
+
+#login_demo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-size: 13px;
+    text-decoration: none;
 }
 
 .link{

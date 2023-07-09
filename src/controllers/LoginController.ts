@@ -37,6 +37,22 @@ export async function login(req: Request, res: Response){
     return res.render('login/login', { title, pagecss, message: response?.message ?? undefined});
 }
 
+export async function demo(req: Request, res: Response){
+    const user = await User.findOne({ where: {email: 'test@test.test'} });
+
+    if(!user) return res.status(500).redirect('/login');
+
+    req.session.token = await generateToken({ 
+        name: user.name, 
+        email: user.email,
+        phone: user.phone ?? null,
+        verified_email: user.verified_email,
+        phone_auth: await checkHasPhoneAuth(user.id as number, user.phone ?? null)
+    })
+
+    res.status(201).redirect('/');
+}
+
 export async function register(req: Request, res: Response){
     const title: string = 'Cadastro';
     const pagecss: string = 'login.css';

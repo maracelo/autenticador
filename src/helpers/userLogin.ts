@@ -14,7 +14,7 @@ async function userLogin(userInfo: UserInfo): Promise<DefaultReturn>{
     
     if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
-    if(!response || !response.user || !response.message ) return { message: '' };
+    if(!response || !response.user || !response.message) return { message: '' };
     
     const { user, message } = response;
 
