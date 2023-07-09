@@ -1,24 +1,45 @@
 import { Request, Response } from "express";
 import jwtDecode from "jwt-decode";
-import JWTUserDataType from "../types/JWTUserDataType";
+import JWTUserData from "../types/JWTUserData";
 import { User } from "../models/User";
 import sendEmailVerification from "../helpers/sendEmailVerification";
 import generateToken from "../helpers/generateToken";
 import verifyToken from "../helpers/verifyToken";
 import checkHasPhoneAuth from "../helpers/checkHasPhoneAuth";
 
-// TODO fazer teste com smtp de verdade
-
 export async function page(req: Request, res: Response){
-    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
+    const decoded: JWTUserData = await jwtDecode(req.session.token);
 
-    const sendEmail = await sendEmailVerification(decoded)
+    // const sendEmail = await sendEmailVerification(decoded) // temp
 
     res.render('verify_email', {
         title: 'Verificação',
         pagecss: 'verify_email.css',
-        message: sendEmail ?? null
+        // message: sendEmail ?? null // temp
+        message: null // temp
     });
+}
+
+export async function demo(req: Request, res: Response){
+    const decoded: JWTUserData = jwtDecode(req.session.token);
+
+    const user = await User.findOne({ where: {email: decoded.email }});
+
+    if(!user) return res.redirect('/login'); 
+    
+    await user.update({
+        verified_email: true
+    });
+
+    req.session.token = await generateToken({
+        name: user.name,
+        email: user.email,
+        verified_email: true,
+        phone: user.phone,
+        phone_auth: await checkHasPhoneAuth(user.id as number, user.phone)
+    });
+
+    res.redirect('/');
 }
 
 export async function confirm(req: Request, res: Response){
@@ -28,9 +49,9 @@ export async function confirm(req: Request, res: Response){
     
     const confirmInfo: {name: string, email: string} = await jwtDecode(token);
     
-    const infoFromSession: JWTUserDataType = await jwtDecode(req.session.token);
+    const infoFromSession: JWTUserData = await jwtDecode(req.session.token);
     
-    if(confirmInfo.email !==  infoFromSession.email) return res.redirect('/verifyemail');
+    if(confirmInfo.email !== infoFromSession.email) return res.redirect('/verifyemail');
 
     const user = await User.findOne({ where: {email: confirmInfo.email} });
 

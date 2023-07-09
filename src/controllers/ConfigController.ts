@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import jwtDecode from "jwt-decode";
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import JWTUserDataType from "../types/JWTUserDataType";
+import JWTUserData from "../types/JWTUserData";
 import { User } from "../models/User";
 import { PhoneAuth } from "../models/PhoneAuth";
 import generateToken from "../helpers/generateToken";
@@ -11,7 +11,7 @@ import checkHasPhoneAuth from "../helpers/checkHasPhoneAuth";
 dotenv.config();
 
 export async function config(req: Request, res: Response){
-    const user: JWTUserDataType = await jwtDecode(req.session.token);
+    const user: JWTUserData = await jwtDecode(req.session.token);
 
     const userDb = await User.findOne({ where: {email: user.email} });
     
@@ -37,7 +37,7 @@ export async function config(req: Request, res: Response){
     });
 }
 
-type configType = {
+type Config = {
     name?: string;
     email?: string;
     new_password?: string;
@@ -45,7 +45,7 @@ type configType = {
     phone_auth_toggle?: string;
 }
 
-async function changeConfig(user: any, newInfo: configType){
+async function changeConfig(user: any, newInfo: Config){
     let newToken;
     let redirect: boolean = false;
 
@@ -70,7 +70,7 @@ async function changeConfig(user: any, newInfo: configType){
 
     const hasPhoneAuth = await checkHasPhoneAuth(user.id, user.phone);
 
-    let tokenContent: JWTUserDataType = {
+    let tokenContent: JWTUserData = {
         name: user.name,
         email: user.email,
         phone: user.phone ?? null,

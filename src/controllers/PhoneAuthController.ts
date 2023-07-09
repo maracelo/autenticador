@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import jwtDecode from 'jwt-decode';
 import validator from 'validator';
-import JWTUserDataType from '../types/JWTUserDataType';
+import JWTUserData from '../types/JWTUserData';
 import { User } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
 import phoneNumberValidation from '../helpers/phoneNumberValidation';
@@ -10,10 +10,8 @@ import generateToken from '../helpers/generateToken';
 import checkHasPhoneAuth from '../helpers/checkHasPhoneAuth';
 import getExpiresDate from '../helpers/getExpiresDate';
 
-type statusType = undefined | 'approved' | 'pending' | 'invalid';
-
 export async function add(req: Request, res: Response){
-    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
+    const decoded: JWTUserData = await jwtDecode(req.session.token);
 
     if(decoded.phone) return res.redirect('/sendotp'); 
 
@@ -43,16 +41,13 @@ export async function add(req: Request, res: Response){
     res.render('phone_auth/phone_register', { title, pagecss });
 }
 
-// TODO refatorar
-// TODO separar helpers por pastas
-
 export async function sendOTP(req: Request, res: Response){
     let otp_id: undefined | string;
     let message: undefined | string;
 
     const redirect = () => res.redirect('/addphone');
     
-    const decoded: JWTUserDataType = jwtDecode(req.session.token);
+    const decoded: JWTUserData = jwtDecode(req.session.token);
 
     if(!decoded.phone) return redirect;
 
@@ -66,31 +61,25 @@ export async function sendOTP(req: Request, res: Response){
 
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
 
-    const send = async (phone: string, phoneAuth: any) =>{
-        const response = await OTP.send(phone);
-    
-        if(!response) return message = 'Erro no Sistema! Tente novamente mais tarde';
-
-        else phoneAuth.update({ otp_id: response.otp_id, status: 'pending', expires: getExpiresDate() });
-    };
-
     if(!phoneAuth) return res.redirect('/config');
 
-    else{
-        otp_id = phoneAuth.otp_id;
+    if(!phoneAuth.expires){
+        let response = await send(phone, phoneAuth, user);
+        
+        if(response.token) req.session.token = response.token; 
+        otp_id = response.otp_id ?? undefined;
+        message = response.message ?? undefined;
+    }else{
+        if( (new Date()) > (new Date(phoneAuth.expires)) ){
+            await phoneAuth.destroy();
+            const newPhoneAuth = await PhoneAuth.create({ user_id: user.id });
+            let response = await send(phone, newPhoneAuth, user);
 
-        if(!phoneAuth.expires){
-            await send(phone, phoneAuth);
-        }else{
-            if(isPhoneAuthExpired(phoneAuth.expires)){
-                await phoneAuth.destroy();
-                const newPhoneAuth = await PhoneAuth.create({ user_id: user.id });
-                await send(phone, newPhoneAuth);
-                otp_id = newPhoneAuth.otp_id;
-            } 
-
-            else message = 'Próximo código só em 10min. Tente reenviar'; 
-        }
+            if(response.token) req.session.token = response.token;
+            otp_id = response.otp_id ?? undefined;
+            message = response.message ?? undefined;
+        } 
+        else message = 'Próximo código só em 10min. Tente reenviar'; 
     }
 
     res.render('phone_auth/phone_auth', {
@@ -100,14 +89,36 @@ export async function sendOTP(req: Request, res: Response){
         message
     });
 }
-function isPhoneAuthExpired(expires: string){ return new Date() > new Date(expires); }
+async function send(phone: string, phoneAuth: any, user: any): Promise<{message: string, token:string, otp_id: string}>{
+        const response = await OTP.send(phone);
+        let message: string = '';
+        let token: string = '';
+        let otp_id: string = '';
+
+        if(!response) message = 'Erro no Sistema! Tente novamente mais tarde';
+
+        else{
+            phoneAuth.update({ otp_id: response.otp_id, status: 'pending', expires: getExpiresDate() });
+            token = await generateToken({
+                name: user.name,
+                email: user.email,
+                verified_email: user.verified_email,
+                phone: user.phone,
+                phone_auth: 'pending'
+            });
+            otp_id = phoneAuth.otp_id;
+            message = 'Código enviado';
+        } 
+
+        return {message, token, otp_id};
+}
 
 export async function verifyOTP(req: Request, res: Response){
-    let status: statusType;
+    let status: undefined | 'approved' | 'pending' | 'invalid';
     let message: undefined | string;
     const { code } = req.body ?? null;
     
-    const decoded: JWTUserDataType = await jwtDecode(req.session.token);
+    const decoded: JWTUserData = await jwtDecode(req.session.token);
     
     if(!decoded || !decoded.phone) return res.redirect('/logout');
 
@@ -135,7 +146,7 @@ export async function verifyOTP(req: Request, res: Response){
                 verified_email: true,
                 phone_auth: 'approved'
             });
-            
+
             return res.redirect('/');
         break;
         case 'invalid':
@@ -167,8 +178,8 @@ export async function resendOTP(req: Request, res: Response){
     
     let defaultErrMessage = 'Erro no Sistema! tente novamente mais tarde';
 
-    const json = (message: string) => res.json({ message }).redirect('/sendotp');;
-    
+    const json = (message: string) => res.json({ message });
+
     if(!req.body.otp_id) return json( 'otp_id não enviado' );
 
     const phoneAuth = await PhoneAuth.findOne({ where: {otp_id: req.body.otp_id} });                                   
@@ -197,5 +208,5 @@ export async function resendOTP(req: Request, res: Response){
         await phoneAuth.update({ otp_id: new_otp_id });
     } 
 
-    res.json({ new_otp_id, message }).redirect('/sendotp');
+    res.json({ new_otp_id, message });
 }

@@ -1,7 +1,5 @@
 import { Request, Response } from 'express';
 import dotenv from 'dotenv';
-import jwtDecode from 'jwt-decode';
-import JWTUserDataType from '../types/JWTUserDataType';
 import { User } from '../models/User'; 
 import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
@@ -20,10 +18,6 @@ export async function login(req: Request, res: Response){
 
     if(!response) return res.render('login/login', { title, pagecss });
 
-    if(!response.user && !response.message){
-        return res.status(500).render('login/login', { title, pagecss, message: 'Erro no Sistema'});
-    }
-
     if(response.message){
         return res.render('login/login', { title, pagecss, message: response.message });
     }
@@ -39,6 +33,24 @@ export async function login(req: Request, res: Response){
         });
         res.status(201).redirect('/');
     }
+
+    return res.render('login/login', { title, pagecss, message: response?.message ?? undefined});
+}
+
+export async function demo(req: Request, res: Response){
+    const user = await User.findOne({ where: {email: 'test@test.test'} });
+
+    if(!user) return res.status(500).redirect('/login');
+
+    req.session.token = await generateToken({ 
+        name: user.name, 
+        email: user.email,
+        phone: user.phone ?? null,
+        verified_email: user.verified_email,
+        phone_auth: await checkHasPhoneAuth(user.id as number, user.phone ?? null)
+    })
+
+    res.status(201).redirect('/');
 }
 
 export async function register(req: Request, res: Response){
@@ -48,10 +60,6 @@ export async function register(req: Request, res: Response){
     const response = await userRegister(req.body);
 
     if(!response) return res.render('login/register', { title, pagecss });
-
-    if(!response.user && !response.message){
-        return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
-    }
 
     if(response.message){
         return res.render('login/register', { title, pagecss, message: response.message });
@@ -68,6 +76,8 @@ export async function register(req: Request, res: Response){
         });
         return res.status(201).redirect('/');
     }
+
+    return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
 };
 
 export async function logout(req: Request, res: Response){
@@ -77,9 +87,7 @@ export async function logout(req: Request, res: Response){
 
     if(response && (response.verified_email || response.phone_auth === 'approved')){
 
-        let decoded: JWTUserDataType = await jwtDecode(token);
-
-        const user = await User.findOne({ where: {email: decoded.email} });
+        const user = await User.findOne({ where: {email: response.email} });
 
         if(user){
             if(response.verified_email) await user.update({ verified_email: false });
@@ -87,7 +95,7 @@ export async function logout(req: Request, res: Response){
             if(response.phone_auth === 'approved'){
                 const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
                 
-                phoneAuth?.update({ otp_id: null, auth: false, status: null });
+                phoneAuth?.update({ otp_id: null, auth: false, status: 'pending' });
             }
         } 
     }

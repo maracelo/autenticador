@@ -1,4 +1,4 @@
-type JWTUserDataType = { 
+type JWTUserData = { 
     name: string, 
     email: string, 
     phone?: string;
@@ -6,4 +6,4 @@ type JWTUserDataType = {
     phone_auth: 'pending' | 'pending_phone' | 'approved' | null;
 }
 
-export default JWTUserDataType;
+export default JWTUserData;
