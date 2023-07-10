@@ -15,7 +15,7 @@ async function userRegister(userInfo: UserInfo|undefined): Promise<DefaultReturn
     
     if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
-    if(!response || !response.user || !response.message) return { message: '' };
+    if(!response || !response.user) return { message: '' };
 
     const {user, message} = response;
 
