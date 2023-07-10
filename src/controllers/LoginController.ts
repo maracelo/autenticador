@@ -77,7 +77,7 @@ export async function register(req: Request, res: Response){
         return res.status(201).redirect('/');
     }
 
-    return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
+    return res.status(500).render('login/register', { title, pagecss});
 };
 
 export async function logout(req: Request, res: Response){
