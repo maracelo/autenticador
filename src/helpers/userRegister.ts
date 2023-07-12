@@ -15,28 +15,32 @@ async function userRegister(userInfo: UserInfo|undefined): Promise<DefaultReturn
     
     if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
-    if(!response || !response.user) return { message: '' };
+    if(response){
+        if(response.message) return { message: response.message };
 
-    const {user, message} = response;
+        if(response.user){
+            const { user } = response;
 
-    if(message) return { message };
-
-    const newUser = await User.create({
-        name: user.name, 
-        email: user.email, 
-        password: user.password ?? '',
-        sub: user.sub ?? null
-    });
-
-    return { message: '',
-        user: {
-            id: newUser.id,
-            name: newUser.name, 
-            email: newUser.email, 
-            verified_email: newUser.verified_email,
-            phone: newUser.phone ?? undefined
+            const newUser = await User.create({
+                name: user.name, 
+                email: user.email, 
+                password: user.password ?? '',
+                sub: user.sub ?? null
+            });
+        
+            return { message: '',
+                user: {
+                    id: newUser.id,
+                    name: newUser.name, 
+                    email: newUser.email, 
+                    verified_email: newUser.verified_email,
+                    phone: newUser.phone ?? undefined
+                }
+            };
         }
-    };
+    }
+
+    return { message: '' };
 }
 
 async function defaultUserInfoValidation(userInfo: UserInfo): Promise<DefaultReturn>{
