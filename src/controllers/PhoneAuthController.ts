@@ -63,7 +63,7 @@ export async function sendOTP(req: Request, res: Response){
 
     if(!phoneAuth) return res.redirect('/config');
 
-    if(!phoneAuth.expires){
+    if(!phoneAuth.expires || !phoneAuth.otp_id){
         let response = await send(phone, phoneAuth, user);
         
         if(response.token) req.session.token = response.token; 
@@ -79,7 +79,10 @@ export async function sendOTP(req: Request, res: Response){
             otp_id = response.otp_id ?? undefined;
             message = response.message ?? undefined;
         } 
-        else message = 'Próximo código só em 10min. Tente reenviar'; 
+        else{
+            otp_id = phoneAuth.otp_id;
+            message = 'Próximo código só em 10min. Tente reenviar'; 
+        } 
     }
 
     res.render('phone_auth/phone_auth', {
@@ -119,7 +122,7 @@ export async function verifyOTP(req: Request, res: Response){
     const { code } = req.body ?? null;
     
     const decoded: JWTUserData = await jwtDecode(req.session.token);
-    
+
     if(!decoded || !decoded.phone) return res.redirect('/logout');
 
     const user = await User.findOne({ where: {phone: decoded.phone} });
