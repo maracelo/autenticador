@@ -31,7 +31,7 @@ export async function login(req: Request, res: Response){
             verified_email: response.user.verified_email,
             phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
         });
-        res.status(201).redirect('/');
+        return res.status(201).redirect('/');
     }
 
     return res.render('login/login', { title, pagecss, message: response?.message ?? undefined});
