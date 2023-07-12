@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 import path from "path";
 import mustache from "mustache-express";
 import MainRoutes from "./routes/index";
-import { sequelize } from "./instances/mysql";
+// import { sequelize } from "./instances/mysql";
+import { sequelize } from "./instances/postgre";
 import session from "express-session";
 import cors from 'cors';
 

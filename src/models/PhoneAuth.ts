@@ -1,12 +1,13 @@
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '../instances/mysql';
+// import { sequelize } from '../instances/mysql';
+import { sequelize } from '../instances/postgre';
 
 interface PhoneAuthInstance extends Model{
     user_id: number;
-    otp_id: string;
+    otp_id: string | null;
     auth: boolean;
     status: 'pending' | 'approved' | null;
-    expires: string;
+    expires: string | null;
 }
 
 export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
@@ -15,7 +16,8 @@ export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
         type: DataTypes.INTEGER
     },
     otp_id: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: true
     },
     auth: {
         type: DataTypes.BOOLEAN,
