@@ -31,7 +31,7 @@ export async function login(req: Request, res: Response){
             verified_email: response.user.verified_email,
             phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
         });
-        res.status(201).redirect('/');
+        return res.status(201).redirect('/');
     }
 
     return res.render('login/login', { title, pagecss, message: response?.message ?? undefined});
@@ -77,7 +77,7 @@ export async function register(req: Request, res: Response){
         return res.status(201).redirect('/');
     }
 
-    return res.status(500).render('login/register', { title, pagecss, message: 'Erro no Sistema'});
+    return res.status(500).render('login/register', { title, pagecss});
 };
 
 export async function logout(req: Request, res: Response){
@@ -95,7 +95,7 @@ export async function logout(req: Request, res: Response){
             if(response.phone_auth === 'approved'){
                 const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
                 
-                phoneAuth?.update({ otp_id: null, auth: false, status: 'pending' });
+                phoneAuth?.update({ otp_id: null, status: 'pending' });
             }
         } 
     }

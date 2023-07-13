@@ -14,21 +14,25 @@ async function userLogin(userInfo: UserInfo): Promise<DefaultReturn>{
     
     if(userInfo.sub) response = await SSOUserInfoValidation(userInfo);
 
-    if(!response || !response.user || !response.message) return { message: '' };
-    
-    const { user, message } = response;
+    if(response){
+        if(response.message) return { message: response.message };
 
-    if(response.message) return { message };
+        if(response.user){
+            const { user } = response;
+            
+            return { message: '',
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    verified_email: user.verified_email,
+                    phone: user.phone ?? undefined
+                }
+            };
+        }        
+    }
 
-    return { message: '',
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            verified_email: user.verified_email,
-            phone: user.phone ?? undefined
-        }
-    };
+    return { message: '' };
 }
 
 async function defaultUserInfoValidation(userInfo: UserInfo): Promise<DefaultReturn>{

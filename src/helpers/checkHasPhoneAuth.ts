@@ -6,9 +6,7 @@ async function checkHasPhoneAuth(userId: number, phone: string | null){
 
     if(!phoneAuth) return null;
 
-    if(phoneAuth) console.log('tem phoneAuth');
-    
-    if(phoneAuth.auth) return 'approved';
+    if(phoneAuth.status === 'approved') return 'approved';
     
     if(!phone) return 'pending_phone';
     
