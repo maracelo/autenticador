@@ -142,7 +142,7 @@ export async function verifyOTP(req: Request, res: Response){
     
     switch(status){
         case 'approved':
-            phoneAuth.update({ auth: true, status: 'approved', otp_id: null });
+            phoneAuth.update({ status: 'approved', otp_id: null, expires: null });
             req.session.token = await generateToken({
                 name: user.name,
                 email: user.email,
