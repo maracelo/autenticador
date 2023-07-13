@@ -69,11 +69,12 @@ export async function sendOTP(req: Request, res: Response){
         if(response.token) req.session.token = response.token; 
         otp_id = response.otp_id ?? undefined;
         message = response.message ?? undefined;
+        
     }else{
         if( (new Date()) > (new Date(phoneAuth.expires)) ){
-            await phoneAuth.destroy();
-            const newPhoneAuth = await PhoneAuth.create({ user_id: user.id });
-            let response = await send(phone, newPhoneAuth, user);
+
+            phoneAuth.update({ otp_id: null, status: null, expires: null });
+            let response = await send(phone, phoneAuth, user);
 
             if(response.token) req.session.token = response.token;
             otp_id = response.otp_id ?? undefined;
