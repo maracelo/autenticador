@@ -81,7 +81,7 @@ async function SSOUserInfoValidation(userInfo: UserInfo): Promise<DefaultReturn>
             id: user.id,
             name: user.name,
             email: user.email,
-            verified_email: true,
+            verified_email: user.verified_email,
             phone: user.phone ?? undefined
         }
     };

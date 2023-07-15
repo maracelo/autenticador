@@ -15,13 +15,22 @@ export async function add(req: Request, res: Response){
 
     if(decoded.phone) return res.redirect('/sendotp'); 
 
-    const title = 'Registrar Celular';
-    const pagecss = 'phone_auth.css';
+    const render = (message?: string) =>{
+        return res.render('phone_auth/phone_register', {
+            title: 'Registrar Celular', 
+            pagecss: 'phone_auth.css', 
+            message
+        });
+    }
 
     const phone = phoneNumberValidation(req.body?.phone ?? '');
 
-    if(!phone) return res.render('phone_auth/phone_register', { title, pagecss });
+    if(!phone) return render();
     
+    const exists = await User.findOne({ where: {phone} });
+
+    if(exists) return render('Número de Celular já em uso');
+
     const user = await User.findOne({ where: {email: decoded.email} });
     
     if(user && !user.phone){
@@ -38,7 +47,7 @@ export async function add(req: Request, res: Response){
         return res.redirect('/sendotp');
     } 
     
-    res.render('phone_auth/phone_register', { title, pagecss });
+    render();
 }
 
 export async function sendOTP(req: Request, res: Response){
