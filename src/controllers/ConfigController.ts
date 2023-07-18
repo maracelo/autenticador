@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import jwtDecode from "jwt-decode";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import JWTUserData from "../types/JWTUserData";
 import { User } from "../models/User";
@@ -59,11 +59,11 @@ async function changeConfig(user: any, newInfo: Config){
     if( 
         new_password 
         && (
-            ( current_password && await bcrypt.compare(current_password, user.password) ) 
+            ( current_password && await bcrypt.compareSync(current_password, user.password) ) 
             || ( user.sub && !user.password && !current_password) 
         )
     ){
-        const encryptedPassword = await bcrypt.hash(new_password, 8);
+        const encryptedPassword = await bcrypt.hashSync(new_password, 8);
 
         await user.update({ password: encryptedPassword });
     }

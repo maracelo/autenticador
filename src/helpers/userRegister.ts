@@ -1,5 +1,5 @@
 import validator from 'validator';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import UserInfo from '../types/UserInfo';
 import DefaultReturn from '../types/DefaultReturn';
 import { User } from '../models/User';
@@ -74,7 +74,7 @@ async function defaultUserInfoValidation(userInfo: UserInfo): Promise<DefaultRet
     }
 
     const finalName = sanitizeName(userInfo.name);
-    const encryptedPassword = await bcrypt.hash(userInfo.password, 8);
+    const encryptedPassword = await bcrypt.hashSync(userInfo.password, 8);
 
     return {user: {
         name: finalName,
@@ -94,7 +94,7 @@ async function SSOUserInfoValidation(userInfo: UserInfo): Promise<DefaultReturn>
     if(user) return { message: 'E-mail já está em uso' };
 
     const finalName = sanitizeName(userInfo.name);
-    const encryptedSub = await bcrypt.hash(userInfo.sub, 8);
+    const encryptedSub = await bcrypt.hashSync(userInfo.sub, 8);
 
     return {user: {
         name: finalName,
