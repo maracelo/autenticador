@@ -2,7 +2,7 @@ import UserInfo from "../types/UserInfo";
 import DefaultReturn from "../types/DefaultReturn";
 import validatePassword from "./validatePassword";
 import { User } from "../models/User";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import validator from "validator";
 
 async function userLogin(userInfo: UserInfo): Promise<DefaultReturn>{
@@ -48,7 +48,7 @@ async function defaultUserInfoValidation(userInfo: UserInfo): Promise<DefaultRet
     
     if(!user) return { message };
     
-    const validPassword = await bcrypt.compare(userInfo.password, user.password);
+    const validPassword = await bcrypt.compareSync(userInfo.password, user.password);
 
     if(!validPassword) return {message};
 
@@ -72,7 +72,7 @@ async function SSOUserInfoValidation(userInfo: UserInfo): Promise<DefaultReturn>
 
     if(!user || !user.sub) return { message: 'Usuário não encontrado' };
 
-    const validatedSub = await bcrypt.compare(userInfo.sub, user.sub);
+    const validatedSub = await bcrypt.compareSync(userInfo.sub, user.sub);
 
     if(!validatedSub) return { message: 'Usuário inválido' };
 
