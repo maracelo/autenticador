@@ -1,6 +1,6 @@
 import { PhoneAuth } from "../models/PhoneAuth";
 
-async function checkHasPhoneAuth(userId: number, phone: string | null){
+async function checkPhoneAuthStatus(userId: number, phone: string | null){
     
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: userId} });
 
@@ -13,4 +13,4 @@ async function checkHasPhoneAuth(userId: number, phone: string | null){
     return 'pending';
 }
 
-export default checkHasPhoneAuth;
+export default checkPhoneAuthStatus;

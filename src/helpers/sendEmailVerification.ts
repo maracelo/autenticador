@@ -1,13 +1,13 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import JWTUserData from "../types/JWTUserData";
 import generateToken from './generateToken';
+import { UserInstance } from '../models/User';
 
 dotenv.config();
 
-async function sendEmailVerification(user: JWTUserData){
+async function sendEmailVerification(user: UserInstance){
 
-    const token = generateToken({ name: user.name, email: user.email });
+    const token = await generateToken({ id: user.id, confirm: true });
 
     const transport = nodemailer.createTransport({
         host: "sandbox.smtp.mailtrap.io",

@@ -5,8 +5,8 @@ import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
 import userRegister from '../helpers/userRegister';
 import userLogin from '../helpers/userLogin';
-import checkDecoded from '../helpers/checkDecoded';
-import checkHasPhoneAuth from '../helpers/checkHasPhoneAuth';
+import decodeJWT from '../helpers/decodeJWT';
+import checkPhoneAuthStatus from '../helpers/checkPhoneAuthStatus';
 
 dotenv.config();
 
@@ -23,14 +23,7 @@ export async function login(req: Request, res: Response){
     }
     
     if(response.user){
-
-        req.session.token = await generateToken({ 
-            name: response.user.name, 
-            email: response.user.email,
-            phone: response.user.phone ?? null,
-            verified_email: response.user.verified_email,
-            phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
-        });
+        req.session.token = await generateToken({ id: response.user.id });
         return res.status(201).redirect('/');
     }
 
@@ -42,13 +35,7 @@ export async function demo(req: Request, res: Response){
 
     if(!user) return res.status(500).redirect('/login');
 
-    req.session.token = await generateToken({ 
-        name: user.name, 
-        email: user.email,
-        phone: user.phone ?? null,
-        verified_email: user.verified_email,
-        phone_auth: await checkHasPhoneAuth(user.id as number, user.phone ?? null)
-    })
+    req.session.token = await generateToken({ id: user.id })
 
     res.status(201).redirect('/');
 }
@@ -66,14 +53,8 @@ export async function register(req: Request, res: Response){
     }
     
     if(response.user){
-
-        req.session.token = await generateToken({ 
-            name: response.user.name, 
-            email: response.user.email,
-            phone: response.user.phone ?? null,
-            verified_email: response.user.verified_email,
-            phone_auth: await checkHasPhoneAuth(response.user.id as number, response.user.phone ?? null)
-        });
+        req.session.token = await generateToken({ id: response.user.id });
+        
         return res.status(201).redirect('/');
     }
 
@@ -83,16 +64,17 @@ export async function register(req: Request, res: Response){
 export async function logout(req: Request, res: Response){
     const token = req.session.token;
 
-    const response = await checkDecoded(token);
+    const json = await decodeJWT(token);
 
-    if(response && (response.verified_email || response.phone_auth === 'approved')){
-
-        const user = await User.findOne({ where: {email: response.email} });
+    if(json){
+        const user = await User.findOne({ where: {id: json.id} });
 
         if(user){
-            if(response.verified_email) await user.update({ verified_email: false });
             
-            if(response.phone_auth === 'approved'){
+            if(user.verified_email) await user.update({ verified_email: false });
+            
+            if(await checkPhoneAuthStatus(user.id, user.phone) === 'approved'){
+                
                 const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
                 
                 phoneAuth?.update({ otp_id: null, status: 'pending' });

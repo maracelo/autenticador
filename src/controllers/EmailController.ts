@@ -3,14 +3,17 @@ import jwtDecode from "jwt-decode";
 import JWTUserData from "../types/JWTUserData";
 import { User } from "../models/User";
 import sendEmailVerification from "../helpers/sendEmailVerification";
-import generateToken from "../helpers/generateToken";
-import verifyToken from "../helpers/verifyToken";
-import checkHasPhoneAuth from "../helpers/checkHasPhoneAuth";
+import JWT from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export async function page(req: Request, res: Response){
-    const decoded: JWTUserData = await jwtDecode(req.session.token);
+    const { id }: JWTUserData = await jwtDecode(req.session.token);
 
-    // const sendEmail = await sendEmailVerification(decoded) // temp
+    const user = await User.findOne({ where: {id} });
+
+    // const sendEmail = await sendEmailVerification(user) // temp
 
     res.render('verify_email', {
         title: 'Verificação',
@@ -21,51 +24,54 @@ export async function page(req: Request, res: Response){
 }
 
 export async function demo(req: Request, res: Response){
-    const decoded: JWTUserData = jwtDecode(req.session.token);
+    const { id }: JWTUserData = jwtDecode(req.session.token);
 
-    const user = await User.findOne({ where: {email: decoded.email }});
+    const user = await User.findOne({ where: {id} });
 
     if(!user) return res.redirect('/login'); 
     
-    await user.update({
-        verified_email: true
-    });
-
-    req.session.token = await generateToken({
-        name: user.name,
-        email: user.email,
-        verified_email: true,
-        phone: user.phone,
-        phone_auth: await checkHasPhoneAuth(user.id as number, user.phone)
-    });
+    await user.update({ verified_email: true });
 
     res.redirect('/');
 }
 
 export async function confirm(req: Request, res: Response){
-    const token: string = req.query.confirm as string | undefined  ?? '';
+    const token: undefined | string = req.query.confirm as string | undefined;
+
+    if(!token || typeof(token) !== 'string') return res.redirect('/verifyemail');
 
     if(!verifyToken(token)) return res.redirect('/verifyemail');
     
-    const confirmInfo: {name: string, email: string} = await jwtDecode(token);
+    const confirmInfo: {id: number, confirm: true} = await jwtDecode(token);
     
     const infoFromSession: JWTUserData = await jwtDecode(req.session.token);
     
-    if(confirmInfo.email !== infoFromSession.email) return res.redirect('/verifyemail');
+    if(confirmInfo.id !== infoFromSession.id) return res.redirect('/verifyemail');
 
-    const user = await User.findOne({ where: {email: confirmInfo.email} });
+    const user = await User.findOne({ where: {id: confirmInfo.id} });
 
     if(!user) return res.redirect('/verifyemail');
 
     await user.update({ verified_email: true });
 
-    req.session.token = await generateToken({
-        name: user.name,
-        email: user.email,
-        phone: user.phone ?? null,
-        verified_email: true,
-        phone_auth: await checkHasPhoneAuth(user.id, user.phone)
-    });
-
     res.redirect('/verifyemail');
+}
+
+async function verifyToken(token: string){
+    try{
+        JWT.verify(token, process.env.JWT_SECRET_KEY as string);
+        
+        const confirmation: undefined | {id: number, confirm: true} = await jwtDecode(token);
+
+        if(!confirmation) return false;
+
+        const user = await User.findOne({ where: {id: confirmation.id} });
+
+        if(!user) return false;
+
+        return true;
+    }catch(err){
+        console.log(err);
+        return false;
+    }
 }

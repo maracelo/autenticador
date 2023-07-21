@@ -6,14 +6,17 @@ import { User } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
 import phoneNumberValidation from '../helpers/phoneNumberValidation';
 import OTP from '../helpers/OTP';
-import generateToken from '../helpers/generateToken';
-import checkHasPhoneAuth from '../helpers/checkHasPhoneAuth';
 import getExpiresDate from '../helpers/getExpiresDate';
 
 export async function add(req: Request, res: Response){
-    const decoded: JWTUserData = await jwtDecode(req.session.token);
 
-    if(decoded.phone) return res.redirect('/sendotp'); 
+    const json: JWTUserData = await jwtDecode(req.session.token);
+
+    const user = await User.findOne({ where: {id: json.id} });
+
+    if(!user) return res.redirect('/logout');
+
+    if(user.phone) return res.redirect('/sendotp'); 
 
     const render = (message?: string) =>{
         return res.render('phone_auth/phone_register', {
@@ -22,27 +25,17 @@ export async function add(req: Request, res: Response){
             message
         });
     }
+    
+    const phone = req.body.phone ?? '';
 
-    const phone = phoneNumberValidation(req.body?.phone ?? '');
-
-    if(!phone) return render();
+    if(!phone || !phoneNumberValidation(phone)) return render();
     
     const exists = await User.findOne({ where: {phone} });
 
     if(exists) return render('Número de Celular já em uso');
 
-    const user = await User.findOne({ where: {email: decoded.email} });
-    
-    if(user && !user.phone){
+    if(!user.phone){
         await user.update({ phone });
-        
-        req.session.token = await generateToken({
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            verified_email: true,
-            phone_auth: await checkHasPhoneAuth(user.id, user.phone)
-        });
 
         return res.redirect('/sendotp');
     } 
@@ -56,26 +49,25 @@ export async function sendOTP(req: Request, res: Response){
 
     const redirect = () => res.redirect('/addphone');
     
-    const decoded: JWTUserData = jwtDecode(req.session.token);
+    const json: JWTUserData = jwtDecode(req.session.token);
 
-    if(!decoded.phone) return redirect;
-
-    const phone = phoneNumberValidation(decoded.phone);
-
-    if(!phone) return redirect;
-
-    const user = await User.findOne({ where: {phone: decoded.phone} });
+    const user = await User.findOne({ where: {id: json.id} });
 
     if(!user) return redirect;
+
+    if(!user.phone) return redirect;
+
+    const phone = phoneNumberValidation(user.phone);
+
+    if(!phone) return redirect;
 
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
 
     if(!phoneAuth) return res.redirect('/config');
 
     if(!phoneAuth.expires || !phoneAuth.otp_id){
+
         let response = await send(phone, phoneAuth, user);
-        
-        if(response.token) req.session.token = response.token; 
         otp_id = response.otp_id ?? undefined;
         message = response.message ?? undefined;
         
@@ -83,13 +75,12 @@ export async function sendOTP(req: Request, res: Response){
         if( (new Date()) > (new Date(phoneAuth.expires)) ){
 
             phoneAuth.update({ otp_id: null, status: null, expires: null });
-            let response = await send(phone, phoneAuth, user);
 
-            if(response.token) req.session.token = response.token;
+            let response = await send(phone, phoneAuth, user);
             otp_id = response.otp_id ?? undefined;
             message = response.message ?? undefined;
-        } 
-        else{
+
+        }else{
             otp_id = phoneAuth.otp_id;
             message = 'Próximo código só em 10min. Tente reenviar'; 
         } 
@@ -102,48 +93,43 @@ export async function sendOTP(req: Request, res: Response){
         message
     });
 }
-async function send(phone: string, phoneAuth: any, user: any): Promise<{message: string, token:string, otp_id: string}>{
-        const response = await OTP.send(phone);
-        let message: string = '';
-        let token: string = '';
-        let otp_id: string = '';
 
-        if(!response) message = 'Erro no Sistema! Tente novamente mais tarde';
+async function send(phone: string, phoneAuth: any, user: any): Promise<{message: string, otp_id: string}>{
+    const response = await OTP.send(phone);
+    let message: string = '';
+    let otp_id: string = '';
 
-        else{
-            phoneAuth.update({ otp_id: response.otp_id, status: 'pending', expires: getExpiresDate() });
-            token = await generateToken({
-                name: user.name,
-                email: user.email,
-                verified_email: user.verified_email,
-                phone: user.phone,
-                phone_auth: 'pending'
-            });
-            otp_id = phoneAuth.otp_id;
-            message = 'Código enviado';
-        } 
+    if(!response) message = 'Erro no Sistema! Tente novamente mais tarde';
 
-        return {message, token, otp_id};
+    else{
+        phoneAuth.update({ otp_id: response.otp_id, status: 'pending', expires: getExpiresDate() });
+        
+        otp_id = phoneAuth.otp_id;
+
+        message = 'Código enviado';
+    } 
+
+    return {message, otp_id};
 }
 
 export async function verifyOTP(req: Request, res: Response){
-    let status: undefined | 'approved' | 'pending' | 'invalid';
-    let message: undefined | string;
     const { code } = req.body ?? null;
+    let message: undefined | string;
+    let status: undefined | 'approved' | 'pending' | 'invalid';
     
-    const decoded: JWTUserData = await jwtDecode(req.session.token);
+    const json: JWTUserData = await jwtDecode(req.session.token);
+    
+    const user = await User.findOne({ where: {id: json.id} });
+    
+    if(!user) return res.redirect('/logout');
 
-    if(!decoded || !decoded.phone) return res.redirect('/logout');
-
-    const user = await User.findOne({ where: {phone: decoded.phone} });
-
-    if(!user) return res.redirect('/addphone');
+    if(!user.phone) return res.redirect('/addphone');
     
     const sanitizedCode = sanitizeVerificationOTP(code);
 
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
     
-    if(!phoneAuth) return res.redirect('/addphone');
+    if(!phoneAuth) return res.redirect('/config');
     
     if(!phoneAuth.otp_id || !sanitizedCode) return res.redirect('/addphone');
     
@@ -152,13 +138,6 @@ export async function verifyOTP(req: Request, res: Response){
     switch(status){
         case 'approved':
             phoneAuth.update({ status: 'approved', otp_id: null, expires: null });
-            req.session.token = await generateToken({
-                name: user.name,
-                email: user.email,
-                phone: user.phone ?? null,
-                verified_email: true,
-                phone_auth: 'approved'
-            });
 
             return res.redirect('/');
         break;
