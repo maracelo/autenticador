@@ -11,7 +11,7 @@ dotenv.config();
 export async function page(req: Request, res: Response){
     const { id }: JWTUserData = await jwtDecode(req.session.token);
 
-    const user: UserInstance = await User.findOne({ where: {id} }) as UserInstance;
+    const user = await User.findOne({ where: {id} }) as UserInstance;
 
     // const sendEmail = await sendEmailVerification(user) // temp
 
@@ -26,17 +26,15 @@ export async function page(req: Request, res: Response){
 export async function demo(req: Request, res: Response){
     const { id }: JWTUserData = jwtDecode(req.session.token);
 
-    const user = await User.findOne({ where: {id} });
+    const user = await User.findOne({ where: {id} }) as UserInstance;
 
-    if(!user) return res.redirect('/login'); 
-    
     await user.update({ verified_email: true });
 
     res.redirect('/');
 }
 
 export async function confirm(req: Request, res: Response){
-    const token: undefined | string = req.query.confirm as string | undefined;
+    const token = req.query.confirm;
 
     if(!token || typeof(token) !== 'string') return res.redirect('/verifyemail');
 

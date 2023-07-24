@@ -2,64 +2,52 @@ import { Request, Response } from 'express';
 import jwtDecode from 'jwt-decode';
 import validator from 'validator';
 import JWTUserData from '../types/JWTUserData';
-import { User } from '../models/User';
+import { User, UserInstance } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
 import phoneNumberValidation from '../helpers/phoneNumberValidation';
 import OTP from '../helpers/OTP';
 import getExpiresDate from '../helpers/getExpiresDate';
 
 export async function add(req: Request, res: Response){
+    const phone = req.body.phone ?? '';
+    let message: string = '';
 
     const json: JWTUserData = await jwtDecode(req.session.token);
 
-    const user = await User.findOne({ where: {id: json.id} });
+    const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
 
-    if(!user) return res.redirect('/logout');
+    if(phone){
+        const sanitizedPhone = phoneNumberValidation(phone);
 
-    if(user.phone) return res.redirect('/sendotp'); 
+        if(!sanitizedPhone) message = 'Número Inválido';
+        
+        const exists = await User.findOne({ where: {phone: sanitizedPhone} });
+    
+        if(exists) message = 'Número de Celular já em uso';
 
-    const render = (message?: string) =>{
-        return res.render('phone_auth/phone_register', {
-            title: 'Registrar Celular', 
-            pagecss: 'phone_auth.css', 
-            message
-        });
+        if(!message){
+            await user.update({ phone: sanitizedPhone });
+        
+            return res.redirect('/');
+        }
     }
-    
-    const phone = req.body.phone ?? '';
 
-    if(!phone || !phoneNumberValidation(phone)) return render();
-    
-    const exists = await User.findOne({ where: {phone} });
-
-    if(exists) return render('Número de Celular já em uso');
-
-    if(!user.phone){
-        await user.update({ phone });
-
-        return res.redirect('/sendotp');
-    } 
-    
-    render();
+    return res.render('phone_auth/phone_register', {
+        title: 'Registrar Celular', 
+        pagecss: 'phone_auth.css', 
+        message: message ?? null
+    });
 }
 
 export async function sendOTP(req: Request, res: Response){
     let otp_id: undefined | string;
     let message: undefined | string;
 
-    const redirect = () => res.redirect('/addphone');
-    
     const json: JWTUserData = jwtDecode(req.session.token);
 
-    const user = await User.findOne({ where: {id: json.id} });
+    const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
 
-    if(!user) return redirect;
-
-    if(!user.phone) return redirect;
-
-    const phone = phoneNumberValidation(user.phone);
-
-    if(!phone) return redirect;
+    const phone = user.phone as string;
 
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
 
