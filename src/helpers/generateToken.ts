@@ -1,6 +1,6 @@
 import JWT from 'jsonwebtoken';
 
-function generateToken(data: any){
+async function generateToken(data: any): Promise<string>{
     try{
         return JWT.sign(data, process.env.JWT_SECRET_KEY as string)
     }catch(err){

@@ -5,7 +5,7 @@
         <div class="container">
             <form action="/login" method="POST">
                 {{#message}}
-                    <div class="message">{{.}} <p>x</p></div>
+                    <div class="msg err">{{.}} <p>x</p></div>
                 {{/message}}
 
                 <input id="input_email" type="email" name="email" placeholder="Digite seu E-mail">

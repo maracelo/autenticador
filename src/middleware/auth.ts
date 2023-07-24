@@ -1,17 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
-import jwtDecode from 'jwt-decode';
-import JWTUserData from '../types/JWTUserData';
-import verifyToken from '../helpers/verifyToken';
-import checkDecoded from '../helpers/checkDecoded';
-import generateToken from '../helpers/generateToken';
+import decodeJWT from '../helpers/decodeJWT';
 import phoneNumberValidation from '../helpers/phoneNumberValidation';
+import { User } from '../models/User';
+import checkPhoneAuthStatus from '../helpers/checkPhoneAuthStatus';
 
 const Auth = { checkJWT, checkVerifiedEmail, privateRoute, checkPhoneAuth, checkPhone }
 
 async function checkJWT(req: Request, res: Response, next: NextFunction){
     const token = await req.session.token;
 
-    if(verifyToken(token)) return res.redirect('/verifyemail');
+    if(token) return res.redirect('/verifyemail');
     
     next(); 
 }
@@ -19,13 +17,19 @@ async function checkJWT(req: Request, res: Response, next: NextFunction){
 async function privateRoute(req: Request, res: Response, next: NextFunction){
     const token = await req.session.token;
 
-    const response = await checkDecoded(token);
+    if(!token) return res.redirect('/login');
 
-    if(!response) return res.redirect('/logout');
+    const json = await decodeJWT(token);
 
-    if(!response.verified_email) return res.redirect('/verifyemail');
+    if(!json) return res.redirect('/logout');
 
-    switch(response.phone_auth){
+    const user = await User.findOne({ where: {id: json.id} });
+
+    if(!user) return res.redirect('/logout');
+
+    if(!user.verified_email) return res.redirect('/verifyemail');
+
+    switch(await checkPhoneAuthStatus(user.id, user.phone)){
         case 'pending_phone':
         case 'pending':
             res.redirect('/addphone');
@@ -38,16 +42,24 @@ async function privateRoute(req: Request, res: Response, next: NextFunction){
 
 async function checkVerifiedEmail(req: Request, res: Response, next: NextFunction){
     const token = await req.session.token;
-    
-    if(!verifyToken(token)) return res.redirect('/login');
 
-    const response = await checkDecoded(token);
+    if(!token) return res.redirect('/login');
+
+    const json = await decodeJWT(token);
+
+    if(!json) return res.redirect('/logout');
+
+    const user = await User.findOne({ where: {id: json.id} });
+
+    if(!user) return res.redirect('/logout');
+    
+    const response = await decodeJWT(token);
 
     if(!response) return res.redirect('/logout');
 
-    if(!response.verified_email) return next();
+    if(!user.verified_email) return next();
 
-    switch(response.phone_auth){
+    switch(await checkPhoneAuthStatus(user.id, user.phone)){
         case 'pending':
             res.redirect('/sendotp');
         break;
@@ -62,16 +74,20 @@ async function checkVerifiedEmail(req: Request, res: Response, next: NextFunctio
 
 async function checkPhoneAuth(req: Request, res: Response, next: NextFunction){
     const token = await req.session.token;
-    
-    if(!verifyToken(token)) return res.redirect('/login');
 
-    const response = await checkDecoded(token);
+    if(!token) return res.redirect('/login');
 
-    if(!response) return res.redirect('/logout');
+    const json = await decodeJWT(token);
 
-    if(!response.verified_email) return res.redirect('/verifyemail');
+    if(!json) return res.redirect('/logout');
 
-    switch(response.phone_auth){
+    const user = await User.findOne({ where: {id: json.id} });
+
+    if(!user) return res.redirect('/logout');
+
+    if(!user.verified_email) return res.redirect('/verifyemail');
+
+    switch(await checkPhoneAuthStatus(user.id, user.phone)){
         case 'pending':
         case 'pending_phone':
             next();
@@ -84,21 +100,21 @@ async function checkPhoneAuth(req: Request, res: Response, next: NextFunction){
 }
 
 async function checkPhone(req: Request, res: Response, next: NextFunction){
-    const decoded: JWTUserData = await jwtDecode(await req.session.token);
+    const token = await req.session.token;
+
+    const json = await decodeJWT(token);
+
+    if(!json) return res.redirect('/logout');
+
+    const user = await User.findOne({ where: {id: json.id} });
+
+    if(!user) return res.redirect('/logout');
 
     if(
-        !decoded.phone
-        || !phoneNumberValidation(decoded.phone)
-        || decoded.phone_auth === 'pending_phone'
+        !user.phone
+        || !phoneNumberValidation(user.phone)
+        || await checkPhoneAuthStatus(user.id, user.phone) === 'pending_phone'
     ){
-        req.session.token = await generateToken({
-            name: decoded.name,
-            email: decoded.email,
-            phone: null,
-            verified_email: true,
-            phone_auth: 'pending_phone'
-        });
-
         return res.redirect('/addphone');
     }
 
