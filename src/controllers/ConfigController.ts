@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import jwtDecode from "jwt-decode";
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import JWTUserData from "../types/JWTUserData";
+import PhoneAuthStatus from "../types/PhoneAuthStatus";
 import { User, UserInstance } from "../models/User";
 import { PhoneAuth } from "../models/PhoneAuth";
 import checkPhoneAuthStatus from "../helpers/checkPhoneAuthStatus";
@@ -82,7 +82,7 @@ async function chengeEmail(){
 }
 
 // TODO fazer um type para status de phoneAuth
-async function changePhoneAuth(phoneAuthToggle: undefined|string, hasPhoneAuth: null | 'pending' | 'pending_phone' | 'approved', id: number){
+async function changePhoneAuth(phoneAuthToggle: undefined|string, hasPhoneAuth: PhoneAuthStatus, id: number){
     if(phoneAuthToggle && !hasPhoneAuth){
         await PhoneAuth.create({ user_id: id });
 

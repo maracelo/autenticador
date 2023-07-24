@@ -1,9 +1,9 @@
-const messageXButton = document.querySelectorAll('.message p') || undefined;
+const messageXButton = document.querySelectorAll('.msg p') || undefined;
 
 if(messageXButton){
     messageXButton.forEach(xButton => {
         xButton.addEventListener('click', e =>{
-            e.target.closest('.message').remove();
+            e.target.closest('.msg').remove();
         });
     })
 }

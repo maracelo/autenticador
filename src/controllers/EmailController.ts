@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import jwtDecode from "jwt-decode";
 import JWTUserData from "../types/JWTUserData";
-import { User } from "../models/User";
+import { User, UserInstance } from "../models/User";
 import sendEmailVerification from "../helpers/sendEmailVerification";
 import JWT from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -11,7 +11,7 @@ dotenv.config();
 export async function page(req: Request, res: Response){
     const { id }: JWTUserData = await jwtDecode(req.session.token);
 
-    const user = await User.findOne({ where: {id} });
+    const user: UserInstance = await User.findOne({ where: {id} }) as UserInstance;
 
     // const sendEmail = await sendEmailVerification(user) // temp
 

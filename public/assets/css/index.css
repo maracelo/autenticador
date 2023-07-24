@@ -76,3 +76,34 @@ footer a{
 button, a{
     cursor: pointer;
 }
+
+form .msg{
+    background-color: #ddca9b;
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ffa500;
+    color: #fff;
+}
+
+.msg p{
+    background-color: #ff8b8b;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1px 5px;
+    cursor: pointer;
+    margin-left: 5px;
+    z-index: 1;
+}
+
+.msg p:hover{
+    background-color: #ff0000;
+}
+
+form .err{
+    background-color: #eba5a5;
+    border-color: #ff0000;
+}

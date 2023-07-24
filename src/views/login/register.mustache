@@ -5,7 +5,7 @@
         <div class="container">
             <form action="/register" method="POST">
                 {{#message}}
-                    <div class="message">{{.}} <p>x</p></div>
+                    <div class="msg err">{{.}} <p>x</p></div>
                 {{/message}}
 
                 <input id="input_name" type="text" name="name" placeholder="Digite seu Nome">

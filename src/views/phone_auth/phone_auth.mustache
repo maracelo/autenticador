@@ -5,6 +5,7 @@
         <div class="container">
             <form action="/sendotp" method="POST">
                 <h2>Ensira o Código</h2>
+                <div class="msg">{{message}} <p>x</p></div>
                 <input id="input_OTP" name="code" type="string" placeholder="Digite o código">
                 <input id="otp_id" type="hidden" name="otp_id" value={{otp_id}}>
                 <button>Enviar Código</button>
@@ -15,8 +16,7 @@
         </div>
     </main>
 
-    <div>{{message}}</div>
-
+    <script src="/assets/js/closeErrorMessage"></script>
     <script src="https://unpkg.com/imask"></script>
     <script src="https://unpkg.com/axios@1.1.2/dist/axios.min.js"></script>
     <script src="/assets/js/maskOTPInput.js"></script>
