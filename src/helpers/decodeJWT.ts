@@ -11,7 +11,7 @@ async function decodeJWT(token: any): Promise<JWTUserData | void>{
         return;
     }
 
-    if(!decoded || !decoded.id) return;
+    if(!decoded || !decoded.id || (Date.now() >= (decoded.exp * 1000) )) return;
 
     return decoded;
 }
