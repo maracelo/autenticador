@@ -3,7 +3,7 @@ import jwtDecode from "jwt-decode";
 import JWTUserData from "../types/JWTUserData";
 import { User, UserInstance } from "../models/User";
 import sendEmailVerification from "../helpers/sendEmailVerification";
-import JWT from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import decodeJWT from "../helpers/decodeJWT";
 
@@ -58,7 +58,7 @@ export async function confirm(req: Request, res: Response){
 
 async function verifyToken(token: string){
     try{
-        JWT.verify(token, process.env.JWT_SECRET_KEY as string);
+        jwt.verify(token, process.env.JWT_SECRET_KEY as string);
         
         const confirmation: undefined | {id: number, confirm: true} = await jwtDecode(token);
 
