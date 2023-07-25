@@ -11,9 +11,7 @@ import decodeJWT from "../helpers/decodeJWT";
 dotenv.config();
 
 export async function config(req: Request, res: Response){
-    const json: void | JWTUserData = await decodeJWT(req.session.token);
-
-    if(!json) return res.redirect('/logout');
+    const json = await decodeJWT(req.session.token) as JWTUserData;
 
     const userDb = await User.findOne({ where: { id: json.id } });
     

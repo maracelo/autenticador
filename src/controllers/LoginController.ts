@@ -14,9 +14,9 @@ export async function login(req: Request, res: Response){
     const title = 'Login';
     const pagecss = 'login.css';
     
+    if(!req.body) return res.render('login/login', { title, pagecss });
+    
     const response = await userLogin(req.body);
-
-    if(!response) return res.render('login/login', { title, pagecss });
 
     if(response.message){
         return res.render('login/login', { title, pagecss, message: response.message });
@@ -44,9 +44,9 @@ export async function register(req: Request, res: Response){
     const title: string = 'Cadastro';
     const pagecss: string = 'login.css';
 
+    if(!req.body) return res.render('login/register', { title, pagecss });
+    
     const response = await userRegister(req.body);
-
-    if(!response) return res.render('login/register', { title, pagecss });
 
     if(response.message){
         return res.render('login/register', { title, pagecss, message: response.message });
@@ -54,7 +54,6 @@ export async function register(req: Request, res: Response){
     
     if(response.user){
         req.session.token = await generateToken({ id: response.user.id });
-        
         return res.status(201).redirect('/');
     }
 
@@ -62,9 +61,7 @@ export async function register(req: Request, res: Response){
 };
 
 export async function logout(req: Request, res: Response){
-    const token = req.session.token;
-
-    const json = await decodeJWT(token);
+    const json: any = await decodeJWT(await req.session.token);
 
     if(json){
         const user = await User.findOne({ where: {id: json.id} });

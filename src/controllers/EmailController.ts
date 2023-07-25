@@ -5,13 +5,14 @@ import { User, UserInstance } from "../models/User";
 import sendEmailVerification from "../helpers/sendEmailVerification";
 import JWT from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import decodeJWT from "../helpers/decodeJWT";
 
 dotenv.config();
 
 export async function page(req: Request, res: Response){
-    const { id }: JWTUserData = await jwtDecode(req.session.token);
+    const json = await decodeJWT(await req.session.token) as JWTUserData;
 
-    const user = await User.findOne({ where: {id} }) as UserInstance;
+    const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
 
     // const sendEmail = await sendEmailVerification(user) // temp
 
@@ -24,9 +25,9 @@ export async function page(req: Request, res: Response){
 }
 
 export async function demo(req: Request, res: Response){
-    const { id }: JWTUserData = jwtDecode(req.session.token);
+    const json = await decodeJWT(await req.session.token) as JWTUserData;
 
-    const user = await User.findOne({ where: {id} }) as UserInstance;
+    const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
 
     await user.update({ verified_email: true });
 
