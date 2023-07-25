@@ -7,7 +7,7 @@ dotenv.config();
 
 async function sendEmailVerification(user: UserInstance){
 
-    const token = await generateToken({ id: user.id, confirm: true });
+    const token = await generateToken({ id: user.id, confirm: true }, '600000');
 
     const transport = nodemailer.createTransport({
         host: "sandbox.smtp.mailtrap.io",

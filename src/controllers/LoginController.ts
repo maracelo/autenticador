@@ -23,7 +23,7 @@ export async function login(req: Request, res: Response){
     }
     
     if(response.user){
-        req.session.token = await generateToken({ id: response.user.id });
+        req.session.token = await generateToken({ id: response.user.id }, '7d');
         return res.status(201).redirect('/');
     }
 
@@ -35,7 +35,7 @@ export async function demo(req: Request, res: Response){
 
     if(!user) return res.status(500).redirect('/login');
 
-    req.session.token = await generateToken({ id: user.id })
+    req.session.token = await generateToken({ id: user.id }, '7d')
 
     res.status(201).redirect('/');
 }
@@ -53,7 +53,7 @@ export async function register(req: Request, res: Response){
     }
     
     if(response.user){
-        req.session.token = await generateToken({ id: response.user.id });
+        req.session.token = await generateToken({ id: response.user.id }, '7d');
         return res.status(201).redirect('/');
     }
 
