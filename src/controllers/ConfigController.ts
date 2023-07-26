@@ -5,7 +5,7 @@ import JWTUserData from "../types/JWTUserData";
 import PhoneAuthStatus from "../types/PhoneAuthStatus";
 import { User, UserInstance } from "../models/User";
 import { PhoneAuth } from "../models/PhoneAuth";
-import checkPhoneAuthStatus from "../helpers/checkPhoneAuthStatus";
+import checkPhoneAuthStatus from "../helpers/phone/checkPhoneAuthStatus";
 import decodeJWT from "../helpers/decodeJWT";
 
 dotenv.config();

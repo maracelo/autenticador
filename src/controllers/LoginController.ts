@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 import { User } from '../models/User'; 
 import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
-import userRegister from '../helpers/userRegister';
-import userLogin from '../helpers/userLogin';
+import userRegister from '../helpers/login/userRegister';
+import userLogin from '../helpers/login/userLogin';
 import decodeJWT from '../helpers/decodeJWT';
-import checkPhoneAuthStatus from '../helpers/checkPhoneAuthStatus';
+import checkPhoneAuthStatus from '../helpers/phone/checkPhoneAuthStatus';
 
 dotenv.config();
 

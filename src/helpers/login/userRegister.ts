@@ -1,10 +1,10 @@
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
-import UserInfo from '../types/UserInfo';
-import DefaultReturn from '../types/DefaultReturn';
-import { User } from '../models/User';
+import UserInfo from '../../types/UserInfo';
+import DefaultReturn from '../../types/DefaultReturn';
+import { User } from '../../models/User';
 import validatePassword from './validatePassword';
-import sanitizeName from './sanitizeName';
+import sanitizeName from '../sanitizeName';
 
 async function userRegister(userInfo: UserInfo|undefined): Promise<DefaultReturn>{
     let response;

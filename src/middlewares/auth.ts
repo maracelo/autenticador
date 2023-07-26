@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { UserInstance } from '../models/User';
-import checkPhoneAuthStatus from '../helpers/checkPhoneAuthStatus';
+import checkPhoneAuthStatus from '../helpers/phone/checkPhoneAuthStatus';
 import checkAuth from '../helpers/checkAuth';
 
 const Auth = { checkJWT, checkVerifiedEmail, privateRoute, checkPhoneAuth, checkPhone }

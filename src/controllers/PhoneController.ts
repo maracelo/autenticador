@@ -3,9 +3,9 @@ import validator from 'validator';
 import JWTUserData from '../types/JWTUserData';
 import { User, UserInstance } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
-import phoneNumberValidation from '../helpers/phoneNumberValidation';
-import OTP from '../helpers/OTP';
-import getExpiresDate from '../helpers/getExpiresDate';
+import phoneNumberValidation from '../helpers/phone/phoneNumberValidation';
+import OTP from '../helpers/phone/OTP';
+import getExpiresDate from '../helpers/phone/getExpiresDate';
 import decodeJWT from '../helpers/decodeJWT';
 
 export async function add(req: Request, res: Response){

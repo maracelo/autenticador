@@ -1,4 +1,4 @@
-import { PhoneAuth } from "../models/PhoneAuth";
+import { PhoneAuth } from "../../models/PhoneAuth";
 
 async function checkPhoneAuthStatus(userId: number, phone: string | null){
     
