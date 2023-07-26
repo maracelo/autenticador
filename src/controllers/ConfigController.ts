@@ -11,17 +11,18 @@ import decodeJWT from "../helpers/decodeJWT";
 dotenv.config();
 
 export async function config(req: Request, res: Response){
+    let message: string = '';
     const json = await decodeJWT(req.session.token) as JWTUserData;
 
-    const userDb = await User.findOne({ where: { id: json.id } });
+    const userDb = await User.findOne({ where: { id: json.id } }) as UserInstance;
     
-    if(!userDb) return res.redirect('/logout');
-
     if(req.body && Object.keys(req.body).length > 0){
     
         const response = await changeConfig(userDb, req.body);
 
-        if(response) return res.redirect(response);
+        if(response.redirect) return res.redirect(response.redirect);
+
+        if(response.message) message = response.message;
     }
 
     res.render('config', {
@@ -29,7 +30,8 @@ export async function config(req: Request, res: Response){
         pagecss: 'config.css',
         user: { name: userDb.name, email: userDb.email },
         noPassword: userDb.password ? true : false,
-        checked: await checkPhoneAuthStatus(userDb.id, userDb.phone) 
+        checked: await checkPhoneAuthStatus(userDb.id, userDb.phone),
+        message: message ?? null
     });
 }
 
@@ -41,7 +43,9 @@ type Config = {
     phone_auth_toggle?: string;
 }
 
-async function changeConfig(user: UserInstance, newInfo: Config): Promise<string>{
+type ChangeConfigReturn = { redirect?: string, message?: string };
+
+async function changeConfig(user: UserInstance, newInfo: Config): Promise<ChangeConfigReturn>{
     let redirect: string = '';
 
     let {name, /* email, */ new_password, current_password, phone_auth_toggle} = newInfo;
@@ -58,13 +62,15 @@ async function changeConfig(user: UserInstance, newInfo: Config): Promise<string
         await user.update({ password: encryptedPassword });
     }
 
+    else return { message: 'Senhas precisam ser preenchidas e iguais' };
+
     const hasPhoneAuth = await checkPhoneAuthStatus(user.id, user.phone);
 
     const phoneAuthToggle = await changePhoneAuth(phone_auth_toggle, hasPhoneAuth, user.id);
 
     if(phoneAuthToggle) redirect = redirect === '' ? '/addphone' : redirect;
 
-    return redirect;
+    return { redirect };
 }
 
 function checkPasswords(current: undefined | string, user: UserInstance, newPasswod: undefined | string){
