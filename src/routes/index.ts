@@ -28,5 +28,6 @@ router.post('/resendotp', Auth.checkPhoneAuth, PhoneAuthController.resendOTP);
 router.get('/', Auth.privateRoute, HomeController.home);
 router.get('/config', Auth.privateRoute, ConfigController.config);
 router.post('/config', Auth.privateRoute, ConfigController.config);
+router.post('/deleteuser', Auth.privateRoute, ConfigController.deleteUser);
 
 export default router;

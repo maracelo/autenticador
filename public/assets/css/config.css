@@ -79,22 +79,6 @@ input, button, label{
     text-decoration: none;
 }
 
-.g_id_signin{
-    border-top: 1px solid #1D3461;
-    padding: 0;
-    padding-top: 20px; margin-top: 20px;
-}
-
-.fb-login-button{
-    display: flex;
-    justify-content: center;
-    border-top: 1px solid #1D3461;
-    padding: 0;
-    margin-top: 20px;
-    padding-top: 20px;
-    width: 100%;
-}
-
 .message{
     background-color: rgb(223, 129, 129);
     justify-content: space-between;
@@ -102,7 +86,7 @@ input, button, label{
     width: 100%;
     padding: 15px;
     margin-bottom: 20px;
-    border: 1px solid #ff0000;
+    border: 1px solid #f00;
     color: #fff;
 }
 .message p{
@@ -113,5 +97,33 @@ input, button, label{
     cursor: pointer;
 }
 .message p:hover{
-    background-color: #ff0000;
+    background-color: #f00;
+}
+
+.panel{
+    background-color: #489dec;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    padding: 20px;
+    z-index: 2;
+}
+.background{
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    background-color: #00000036;
+    z-index: 1;
+}
+
+.hidden{
+    display: none;
+}
+
+.danger{
+    background-color: #f00;
 }

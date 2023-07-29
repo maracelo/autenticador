@@ -7,6 +7,7 @@ import { User, UserInstance } from "../models/User";
 import { PhoneAuth } from "../models/PhoneAuth";
 import checkPhoneAuthStatus from "../helpers/phone/checkPhoneAuthStatus";
 import decodeJWT from "../helpers/decodeJWT";
+import validatePassword from "../helpers/login/validatePassword";
 
 dotenv.config();
 
@@ -33,6 +34,24 @@ export async function config(req: Request, res: Response){
         checked: await checkPhoneAuthStatus(userDb.id, userDb.phone),
         message: message ?? null
     });
+}
+
+export async function deleteUser(req: Request, res: Response){
+    const password = await req.body.password
+
+    if(!password && validatePassword(password)) return res.redirect('/config');
+    
+    const json = await decodeJWT(req.session.token) as JWTUserData;
+    
+    const user = await User.findOne({ where: { id: json.id } }) as UserInstance;
+    
+    const permission = await bcrypt.compare(password, user.password);
+
+    if(!permission) return res.redirect('/config');
+
+    await user.destroy();
+
+    res.redirect('/logout');
 }
 
 type Config = {

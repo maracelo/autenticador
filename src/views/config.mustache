@@ -34,7 +34,48 @@
 
                 <button id="button">Enviar</button>
             </form>
+
+            <button id="open_panel" class="danger">Deletar Usuário</a>
         </div>
+
+        <div class="panel hidden">
+            <h3>Digite sua Senha para Deletar o Usuário</h3>
+                <form method="POST" action="/deleteuser">
+                    <input type="password" name="password"/>
+                <button>Enviar</button>
+            </form>
+        </div>
+        <div class="background hidden"></div>
     </main>
+
+    <script>
+        const btn = document.querySelector('#open_panel');
+        const panel = document.querySelector('.panel');
+        const main = document.querySelector('main');
+        const background = document.querySelector('.background');
+        let clickInPanel = false;
+        
+        btn.addEventListener('click', () =>{
+            panel.classList.remove('hidden');
+            background.classList.remove('hidden');
+            
+            setTimeout( () =>{
+                main.addEventListener('click', outClick);
+                
+                function outClick(e){
+
+                    if(!clickInPanel){
+                        panel.classList.add('hidden');
+                        background.classList.add('hidden');
+                        main.removeEventListener('click', outClick);
+                    }
+
+                    clickInPanel = false;
+                }
+            }, 10);
+        });
+
+        panel.addEventListener('click', () => clickInPanel = true);
+    </script>
 
 {{>partials/footer}}
