@@ -3,10 +3,10 @@ import dotenv from 'dotenv';
 import { User } from '../models/User'; 
 import { PhoneAuth } from '../models/PhoneAuth';
 import generateToken from '../helpers/generateToken';
-import userRegister from '../helpers/userRegister';
-import userLogin from '../helpers/userLogin';
+import userRegister from '../helpers/login/userRegister';
+import userLogin from '../helpers/login/userLogin';
 import decodeJWT from '../helpers/decodeJWT';
-import checkPhoneAuthStatus from '../helpers/checkPhoneAuthStatus';
+import checkPhoneAuthStatus from '../helpers/phone/checkPhoneAuthStatus';
 
 dotenv.config();
 
@@ -14,16 +14,16 @@ export async function login(req: Request, res: Response){
     const title = 'Login';
     const pagecss = 'login.css';
     
+    if(!req.body) return res.render('login/login', { title, pagecss });
+    
     const response = await userLogin(req.body);
-
-    if(!response) return res.render('login/login', { title, pagecss });
 
     if(response.message){
         return res.render('login/login', { title, pagecss, message: response.message });
     }
     
     if(response.user){
-        req.session.token = await generateToken({ id: response.user.id });
+        req.session.token = await generateToken({ id: response.user.id }, '7d');
         return res.status(201).redirect('/');
     }
 
@@ -35,7 +35,7 @@ export async function demo(req: Request, res: Response){
 
     if(!user) return res.status(500).redirect('/login');
 
-    req.session.token = await generateToken({ id: user.id })
+    req.session.token = await generateToken({ id: user.id }, '7d')
 
     res.status(201).redirect('/');
 }
@@ -44,17 +44,16 @@ export async function register(req: Request, res: Response){
     const title: string = 'Cadastro';
     const pagecss: string = 'login.css';
 
+    if(!req.body) return res.render('login/register', { title, pagecss });
+    
     const response = await userRegister(req.body);
-
-    if(!response) return res.render('login/register', { title, pagecss });
 
     if(response.message){
         return res.render('login/register', { title, pagecss, message: response.message });
     }
     
     if(response.user){
-        req.session.token = await generateToken({ id: response.user.id });
-        
+        req.session.token = await generateToken({ id: response.user.id }, '7d');
         return res.status(201).redirect('/');
     }
 
@@ -62,9 +61,7 @@ export async function register(req: Request, res: Response){
 };
 
 export async function logout(req: Request, res: Response){
-    const token = req.session.token;
-
-    const json = await decodeJWT(token);
+    const json: any = await decodeJWT(await req.session.token);
 
     if(json){
         const user = await User.findOne({ where: {id: json.id} });

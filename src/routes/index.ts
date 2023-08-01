@@ -16,7 +16,8 @@ router.post('/register', Auth.checkJWT, LoginController.register);
 router.get('/logout', LoginController.logout);
 
 router.get('/verifyemail', Auth.checkVerifiedEmail, EmailController.page);
-router.get('/confirmemail', Auth.checkVerifiedEmail, EmailController.confirm);
+router.get('/confirmemail', Auth.checkVerifiedEmail, EmailController.authConfirm);
+router.get('/changeemail', EmailController.changeConfirm);
 router.get('/emaildemo', Auth.checkVerifiedEmail, EmailController.demo);
 
 router.get('/addphone', Auth.checkPhone, PhoneAuthController.add);
@@ -28,5 +29,6 @@ router.post('/resendotp', Auth.checkPhoneAuth, PhoneAuthController.resendOTP);
 router.get('/', Auth.privateRoute, HomeController.home);
 router.get('/config', Auth.privateRoute, ConfigController.config);
 router.post('/config', Auth.privateRoute, ConfigController.config);
+router.post('/deleteuser', Auth.privateRoute, ConfigController.deleteUser);
 
 export default router;

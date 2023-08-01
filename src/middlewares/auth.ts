@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { User, UserInstance } from '../models/User';
-import checkPhoneAuthStatus from '../helpers/checkPhoneAuthStatus';
+import { UserInstance } from '../models/User';
+import checkPhoneAuthStatus from '../helpers/phone/checkPhoneAuthStatus';
 import checkAuth from '../helpers/checkAuth';
 
 const Auth = { checkJWT, checkVerifiedEmail, privateRoute, checkPhoneAuth, checkPhone }
 
 async function checkJWT(req: Request, res: Response, next: NextFunction){
+
     const token = await req.session.token;
 
     if(token) return res.redirect('/verifyemail');
@@ -73,6 +74,7 @@ async function checkPhoneAuth(req: Request, res: Response, next: NextFunction){
 }
 
 async function checkPhone(req: Request, res: Response, next: NextFunction){
+
     const response = await checkAuth(await req.session.token);
 
     if(response.redirect) return res.redirect(response.redirect);

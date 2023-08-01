@@ -1,7 +1,7 @@
-import UserInfo from "../types/UserInfo";
-import DefaultReturn from "../types/DefaultReturn";
+import UserInfo from "../../types/UserInfo";
+import DefaultReturn from "../../types/DefaultReturn";
 import validatePassword from "./validatePassword";
-import { User } from "../models/User";
+import { User } from "../../models/User";
 import bcrypt from 'bcryptjs';
 import validator from "validator";
 

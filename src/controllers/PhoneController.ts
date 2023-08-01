@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
-import jwtDecode from 'jwt-decode';
 import validator from 'validator';
 import JWTUserData from '../types/JWTUserData';
 import { User, UserInstance } from '../models/User';
 import { PhoneAuth } from '../models/PhoneAuth';
-import phoneNumberValidation from '../helpers/phoneNumberValidation';
-import OTP from '../helpers/OTP';
-import getExpiresDate from '../helpers/getExpiresDate';
+import phoneNumberValidation from '../helpers/phone/phoneNumberValidation';
+import OTP from '../helpers/phone/OTP';
+import getExpiresDate from '../helpers/phone/getExpiresDate';
+import decodeJWT from '../helpers/decodeJWT';
 
 export async function add(req: Request, res: Response){
     const phone = req.body.phone ?? '';
     let message: string = '';
 
-    const json: JWTUserData = await jwtDecode(req.session.token);
+    const json = await decodeJWT(await req.session.token) as JWTUserData;
 
     const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
 
@@ -43,7 +43,7 @@ export async function sendOTP(req: Request, res: Response){
     let otp_id: undefined | string;
     let message: undefined | string;
 
-    const json: JWTUserData = jwtDecode(req.session.token);
+    const json = await decodeJWT(await req.session.token) as JWTUserData;
 
     const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
 
@@ -105,7 +105,7 @@ export async function verifyOTP(req: Request, res: Response){
     let message: undefined | string;
     let status: undefined | 'approved' | 'pending' | 'invalid';
     
-    const json: JWTUserData = await jwtDecode(req.session.token);
+    const json = await decodeJWT(await req.session.token) as JWTUserData;
     
     const user = await User.findOne({ where: {id: json.id} });
     
