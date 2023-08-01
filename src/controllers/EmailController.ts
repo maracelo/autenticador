@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import jwtDecode from "jwt-decode";
 import JWTUserData from "../types/JWTUserData";
 import { User, UserInstance } from "../models/User";
-import sendEmailVerification from "../helpers/sendEmailVerification";
+import { ChangeEmail } from "../models/ChangeEmail";
+import { sendEmail } from "../helpers/email/sendEmailVerification";
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import decodeJWT from "../helpers/decodeJWT";
@@ -34,41 +35,73 @@ export async function demo(req: Request, res: Response){
     res.redirect('/');
 }
 
-export async function confirm(req: Request, res: Response){
-    const token = req.query.confirm;
-
-    if(!token || typeof(token) !== 'string') return res.redirect('/verifyemail');
-
-    if(!verifyToken(token)) return res.redirect('/verifyemail');
+export async function authConfirm(req: Request, res: Response){
+    const redirect = () => res.redirect('/verifyemail');
     
-    const confirmInfo: {id: number, confirm: true} = await jwtDecode(token);
-    
-    const infoFromSession: JWTUserData = await jwtDecode(req.session.token);
-    
-    if(confirmInfo.id !== infoFromSession.id) return res.redirect('/verifyemail');
+    const confirmationToken = req.query.confirm;
 
-    const user = await User.findOne({ where: {id: confirmInfo.id} });
+    if(!confirmationToken || typeof(confirmationToken) !== 'string') return redirect();
 
-    if(!user) return res.redirect('/verifyemail');
+    if(!verifyToken(confirmationToken)) return redirect();
+
+    const content: any = await jwtDecode(confirmationToken);
+
+    if(!content || !content.id || !content.confirm) return redirect();
+    
+    const user = await User.findOne({ where: {id: content.id} });
+    
+    if(!user) return redirect();
+
+    const jwtAuth: JWTUserData = await jwtDecode(req.session.token);
+    
+    if(content.id !== jwtAuth.id) return redirect();
 
     await user.update({ verified_email: true });
 
-    res.redirect('/verifyemail');
+    redirect()
 }
 
-async function verifyToken(token: string){
+export async function changeConfirm(req: Request, res: Response){
+    const redirect = () => res.redirect('/login');
+
+    let confirmationToken = req.query.confirm ?? null;
+
+    if(!confirmationToken) confirmationToken = req.query.confirm ?? null;
+
+    if(!confirmationToken || typeof(confirmationToken) !== 'string') return redirect();
+
+    if(!verifyToken(confirmationToken)) return redirect();
+
+    const content: any = await jwtDecode(confirmationToken);
+
+    if(!content || !content.id || (!content.changeConfirm && !content.changeRefuse)) return redirect();
+
+    const user = await User.findOne({ where: {id: content.id} });
+
+    if(!user) return redirect();
+
+    const changeEmail = await ChangeEmail.findOne({ where: {user_id: user.id} });
+
+    if(!changeEmail) return redirect();
+
+    if(content.changeConfirm){    
+        await user.update({ email: changeEmail.new_email, verified_email: false });
+        await sendEmail(
+            changeEmail.new_email, 
+            'Agora seu E-mail é esse aqui!', 
+            null, 
+            'Faça o Login Para entrar na sua conta Usando o novo E-mail'
+        );    
+    }
+
+    changeEmail.destroy();
+    
+    redirect()
+}
+
+function verifyToken(token: string){
     try{
-        jwt.verify(token, process.env.JWT_SECRET_KEY as string);
-        
-        const confirmation: undefined | {id: number, confirm: true} = await jwtDecode(token);
-
-        if(!confirmation) return false;
-
-        const user = await User.findOne({ where: {id: confirmation.id} });
-
-        if(!user) return false;
-
-        return true;
+        return jwt.verify(token, process.env.JWT_SECRET_KEY as string);
     }catch(err){
         console.log(err);
         return false;

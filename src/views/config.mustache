@@ -17,7 +17,11 @@
                 <h2>{{title}}</h2>
 
                 <input type="text" name="name" value="{{user.name}}">
-                <input type="email" name="email" value="{{user.email}}">
+
+                <div class="warning"> <span>Campo realiza Logout</span> 
+                    <input type="email" name="email" value="{{user.email}}">
+                </div>
+
                 <input type="password" name="new_password" placeholder="Nova Senha">
                 {{#noPassword}}
                     <input type="password" name="current_password" placeholder="Senha Atual">
