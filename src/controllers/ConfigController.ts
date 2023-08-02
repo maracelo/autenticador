@@ -97,6 +97,8 @@ async function changeEmail(email: string, user: UserInstance){
 
     if(!validator.isEmail(email)) return { message: 'E-mail inválido' };
 
+    if(email === user.email) return;
+    
     const emailExists = await User.findOne({ where: {email} });
 
     if(emailExists) return { message: 'E-mail já cadastrado' };
