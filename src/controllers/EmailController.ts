@@ -3,7 +3,7 @@ import jwtDecode from "jwt-decode";
 import JWTUserData from "../types/JWTUserData";
 import { User, UserInstance } from "../models/User";
 import { ChangeEmail } from "../models/ChangeEmail";
-import { sendEmail } from "../helpers/email/sendEmailVerification";
+import { sendEmail, sendEmailChangeVerification } from "../helpers/email/sendEmailVerification";
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import decodeJWT from "../helpers/decodeJWT";
@@ -83,6 +83,11 @@ export async function changeConfirm(req: Request, res: Response){
     const changeEmail = await ChangeEmail.findOne({ where: {user_id: user.id} });
 
     if(!changeEmail) return redirect();
+
+    if( (new Date()) > (new Date(content.expires)) ){
+        await sendEmailChangeVerification(user);
+        return redirect();
+    }
 
     if(content.changeConfirm){    
         await user.update({ email: changeEmail.new_email, verified_email: false });
