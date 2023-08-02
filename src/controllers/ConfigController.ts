@@ -113,20 +113,21 @@ async function changeEmail(email: string, user: UserInstance){
 }
 
 async function changePassword(current_password: string, new_password: string, user: UserInstance){
-    let message: string = '';
-
+    
     if( current_password && new_password && checkPasswords(current_password, user, new_password) ){
         const encryptedPassword = bcrypt.hashSync(new_password, 8);
         await user.update({ password: encryptedPassword });
-        message = 'Senhas precisam ser preenchidas e iguais';
+        return;
     }
 
-    return { message };
+    return { message: 'Senhas precisam ser preenchidas' };
 }
 
-function checkPasswords(current: undefined | string, user: UserInstance, newPasswod: undefined | string){
+function checkPasswords(current: string, user: UserInstance, newPasswod: string){
 
-    if( (current && bcrypt.compareSync( current, user.password ) && current !== newPasswod) 
+    if(current != newPasswod) console.log('ok');
+
+    if( (bcrypt.compareSync( current, user.password ) && current !== newPasswod) 
         || ( user.sub && !user.password && !current) ) return true;
 
     return false;
