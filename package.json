@@ -8,7 +8,6 @@
     "start": "ts-node src/server.ts",
     "dev": "nodemon -e ts,json src/server.ts",
     "build": "tsc --build && copyfiles -u 1 src/**/*.mustache dist/",
-    "vercel-build": "echo hello"
   },
   "author": "Marcelo Augusto",
   "license": "ISC",
