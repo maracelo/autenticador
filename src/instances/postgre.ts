@@ -1,13 +1,16 @@
-import { Sequelize } from 'sequelize';
+import { Dialect } from 'sequelize';
 import dotenv from 'dotenv';
+import setSequelize from '../helpers/setSequelize';
 
 dotenv.config();
 
-export const sequelize = new Sequelize(
-    process.env.POSTGRE_DB as string,
-    process.env.POSTGRE_USER as string,
-    process.env.POSTGRE_PASSWORD as string,
+export const sequelize = setSequelize(
     {
-        dialect: 'postgres', port: parseInt(process.env.POSTGRE_PORT as string)
+        tool: 'postgres',
+        name: process.env.POSTGRE_DB as Dialect,
+        user: process.env.POSTGRE_USER as string,
+        password: process.env.POSTGRE_PASSWORD as string,
+        port: process.env.POSTGRE_PORT as string,
+        url: process.env.POSTGRE_URL as string
     }
-)
+);

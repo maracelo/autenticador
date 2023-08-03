@@ -1,13 +1,16 @@
-import { Sequelize } from 'sequelize';
+import { Dialect } from 'sequelize';
 import dotenv from 'dotenv';
+import setSequelize from '../helpers/setSequelize';
 
 dotenv.config();
 
-export const sequelize = new Sequelize(
-    process.env.MYSQL_DB as string, 
-    process.env.MYSQL_USER as string, 
-    process.env.MYSQL_PASSWORD as string,
+export const sequelize = setSequelize(
     {
-        dialect: 'mysql', port: parseInt(process.env.MYSQL_PORT as string)
+        tool: 'mysql',
+        name: process.env.MYSQL_DB as Dialect,
+        user: process.env.MYSQL_USER as string,
+        password: process.env.MYSQL_PASSWORD as string,
+        port: process.env.MYSQL_PORT as string,
+        url: process.env.MYSQL_URL as string
     }
 );
