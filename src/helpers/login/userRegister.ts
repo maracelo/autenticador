@@ -6,8 +6,8 @@ import sanitizeName from '../sanitizeName';
 
 type UserRegisterReturn = {
     messages: string[],
-    user?: UserInstance, email_status?: 'pending',
-    phone_auth_status?: null
+    user?: UserInstance, 
+    email_status?: 'pending'
 };
 
 async function userRegister(userInfo: any): Promise<UserRegisterReturn>{
@@ -32,7 +32,7 @@ async function userRegister(userInfo: any): Promise<UserRegisterReturn>{
                 sub: user.sub ?? null
             });
         
-            return { messages: [], user: newUser, email_status: 'pending', phone_auth_status: null };
+            return { messages: [], user: newUser, email_status: 'pending' };
         }
     }
 
