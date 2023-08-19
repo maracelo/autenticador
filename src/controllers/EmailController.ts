@@ -1,112 +1,116 @@
 import { Request, Response } from "express";
-import jwtDecode from "jwt-decode";
-import JWTUserData from "../types/JWTUserData";
 import { User, UserInstance } from "../models/User";
-import { ChangeEmail } from "../models/ChangeEmail";
-import { sendEmail, sendEmailChangeVerification } from "../helpers/email/sendEmailVerification";
+import { ChangeEmail, ChangeEmailInstance } from "../models/ChangeEmail";
+import * as sendEmails from "../helpers/email/sendEmailVerification";
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import decodeJWT from "../helpers/decodeJWT";
 
 dotenv.config();
 
-export async function page(req: Request, res: Response){
-    const json = await decodeJWT(await req.session.token) as JWTUserData;
-
-    const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
-
-    // const sendEmail = await sendEmailVerification(user) // temp
-
-    res.render('verify_email', {
-        title: 'Verificação',
-        pagecss: 'verify_email.css',
-        // message: sendEmail ?? null // temp
-        message: null // temp
-    });
-}
-
 export async function demo(req: Request, res: Response){
-    const json = await decodeJWT(await req.session.token) as JWTUserData;
-
-    const user = await User.findOne({ where: {id: json.id} }) as UserInstance;
+    const user = res.locals.user as UserInstance;
 
     await user.update({ verified_email: true });
 
-    res.redirect('/');
+    res.json({ success: 'E-mail verificado' });
 }
 
 export async function authConfirm(req: Request, res: Response){
-    const redirect = () => res.redirect('/verifyemail');
-    
-    const confirmationToken = req.query.confirm;
 
-    if(!confirmationToken || typeof(confirmationToken) !== 'string') return redirect();
+    const { errMessage, content, user } = await confirmDefaultValidation(req.query.confirm);
 
-    if(!verifyToken(confirmationToken)) return redirect();
+    if( errMessage ) return res.json({ errMessage });
 
-    const content: any = await jwtDecode(confirmationToken);
+    if( (Date.now() / 1000 ) > content.exp ){
+        await sendEmails.sendEmailVerification(user as UserInstance);
+        return res.json({ errMessage: 'Token expirado! E-mail reenviado' });
+    }
 
-    if(!content || !content.id || !content.confirm) return redirect();
-    
-    const user = await User.findOne({ where: {id: content.id} });
-    
-    if(!user) return redirect();
+    if( content && !content.confirm ) return res.json({ errMessage: 'Token inválido' });
 
-    const jwtAuth: JWTUserData = await jwtDecode(req.session.token);
-    
-    if(content.id !== jwtAuth.id) return redirect();
+    await User.update({verified_email: true}, { where: {id: content.id} });
 
-    await user.update({ verified_email: true });
-
-    redirect()
+    res.json({ success: 'E-mail confirmado' });
 }
 
 export async function changeConfirm(req: Request, res: Response){
-    const redirect = () => res.redirect('/login');
 
-    let confirmationToken = req.query.confirm ?? null;
+    const { errMessage, content, user } = await confirmDefaultValidation(req.query.confirm);
 
-    if(!confirmationToken) confirmationToken = req.query.confirm ?? null;
+    if(errMessage) return res.json({ errMessage });
 
-    if(!confirmationToken || typeof(confirmationToken) !== 'string') return redirect();
+    const { changeErrMessage, changeEmail } = await changeDefaultValidation(content, user as UserInstance);
 
-    if(!verifyToken(confirmationToken)) return redirect();
+    if(changeErrMessage) return res.json({ errMessage: changeErrMessage });
 
-    const content: any = await jwtDecode(confirmationToken);
+    await user?.update({ email: changeEmail?.new_email, verified_email: false });
 
-    if(!content || !content.id || (!content.changeConfirm && !content.changeRefuse)) return redirect();
+    await sendEmails.sendNewEmailNotification(changeEmail?.new_email as string);
+
+    changeEmail?.destroy();
+
+    req.session.destroy( (err) =>{ console.log(err) } );
+
+    res.json({ success: 'E-mail mudado com sucesso' });
+}
+
+export async function changeRefuse(req: Request, res: Response){
+
+    const { errMessage, content, user } = await confirmDefaultValidation(req.query.refuse);
+
+    if(errMessage) return res.json({ errMessage });
+
+    const { changeErrMessage, changeEmail } = await changeDefaultValidation(content, user as UserInstance);
+
+    if(changeErrMessage) return res.json({ errMessage: changeErrMessage });
+
+    changeEmail?.destroy();
+
+    res.json({ success: 'Processo recusado' });
+}
+
+type confirmValidation = Promise<{ errMessage?: string, content?: any, user?: UserInstance }>;
+
+async function confirmDefaultValidation(confirmToken: any): confirmValidation{
+    const content: any = await decodeToken(confirmToken);
+    const errMessage: string = 'Token inválido';
+
+    if(!content) return { errMessage };
 
     const user = await User.findOne({ where: {id: content.id} });
 
-    if(!user) return redirect();
+    if(!user) return { errMessage };
+
+    return { content, user };
+}
+
+async function changeDefaultValidation(content: any, user: UserInstance){
+    let changeErrMessage = 'Token inválido';
+
+    if( (content.confirmToken && !content.changeConfirm) || (content.refuseToken && !content.changeRefuse) )
+        return { changeErrMessage };
+
+    if( (Date.now() / 1000) > content.exp ){
+        await sendEmails.sendEmailChangeVerification(user);
+        return { changeErrMessage: 'Token expirado! E-mail reenviado' };
+    }
 
     const changeEmail = await ChangeEmail.findOne({ where: {user_id: user.id} });
 
-    if(!changeEmail) return redirect();
+    if(!changeEmail) return { changeErrMessage };
 
-    if( (new Date()) > (new Date(content.expires)) ){
-        await sendEmailChangeVerification(user);
-        return redirect();
-    }
-
-    if(content.changeConfirm){    
-        await user.update({ email: changeEmail.new_email, verified_email: false });
-        await sendEmail(
-            changeEmail.new_email, 
-            'Agora seu E-mail é esse aqui!', 
-            null, 
-            'Faça o Login Para entrar na sua conta Usando o novo E-mail'
-        );    
-    }
-
-    changeEmail.destroy();
-    
-    redirect()
+    return { changeEmail };
 }
 
-function verifyToken(token: string){
+async function decodeToken(token: any){
+    if(!token || typeof(token) !== 'string') return false; 
+
     try{
-        return jwt.verify(token, process.env.JWT_SECRET_KEY as string);
+        const decoded: any = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
+        
+        if(!decoded.iat || !decoded.exp || !decoded.id) return false;
+        
+        return decoded;
     }catch(err){
         console.log(err);
         return false;

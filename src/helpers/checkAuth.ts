@@ -1,25 +1,20 @@
 import { User, UserInstance } from "../models/User";
-import decodeJWT from "./decodeJWT";
 
 type CheckAuthReturn = {
-    user: null | UserInstance;
-    redirect: '' | 'login' | 'logout';
+    user?: UserInstance;
+    errMessage?: string;
 }
 
-async function checkAuth(token: any): Promise<CheckAuthReturn>{
-    let user: null | UserInstance = null;
+async function checkAuth(id: any): Promise<CheckAuthReturn>{
+    const errMessage = 'Session inválida. Faça seu login em /login';
 
-    if(!token) return { user, redirect: 'login' };
+    if(!id) return { errMessage };
 
-    const json = await decodeJWT(token);
+    const user = await User.findOne({ where: {id} });
 
-    if(!json) return { user, redirect: 'logout' };
+    if(!user) return { errMessage };
 
-    user = await User.findOne({ where: {id: json.id} });
-
-    if(!user) return { user, redirect: 'logout' };
-
-    return { user, redirect: ''};
+    return { user };
 }
 
 export default checkAuth;

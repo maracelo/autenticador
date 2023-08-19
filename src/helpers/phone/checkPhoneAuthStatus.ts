@@ -1,16 +1,13 @@
 import { PhoneAuth } from "../../models/PhoneAuth";
+import { UserInstance } from "../../models/User";
 
-async function checkPhoneAuthStatus(userId: number, phone: string | null){
+async function checkPhoneAuthStatus(user: UserInstance){
     
-    const phoneAuth = await PhoneAuth.findOne({ where: {user_id: userId} });
+    const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
 
     if(!phoneAuth) return null;
 
-    if(phoneAuth.status === 'approved') return 'approved';
-    
-    if(!phone) return 'pending_phone';
-    
-    return 'pending';
+    return phoneAuth.status;
 }
 
 export default checkPhoneAuthStatus;

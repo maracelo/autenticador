@@ -2,11 +2,11 @@ import { Model, DataTypes } from 'sequelize';
 // import { sequelize } from '../instances/mysql';
 import { sequelize } from '../instances/postgre';
 
-interface PhoneAuthInstance extends Model{
+export interface PhoneAuthInstance extends Model{
     user_id: number;
     otp_id: string | null;
-    status: 'pending' | 'approved' | null;
-    expires: string | null;
+    status: 'pending' | 'approved' | 'pending_phone' | 'pending_send';
+    exp: string | null;
 }
 
 export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
@@ -22,7 +22,7 @@ export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
         type: DataTypes.STRING,
         allowNull: true
     },
-    expires: {
+    exp: {
         type: DataTypes.STRING,
         allowNull: true
     }

@@ -1,11 +1,10 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import path from "path";
-import mustache from "mustache-express";
+import session from "express-session";
 import MainRoutes from "./routes/index";
 // import { sequelize } from "./instances/mysql";
 import { sequelize } from "./instances/postgre";
-import session from "express-session";
 import cors from 'cors';
 
 dotenv.config();
@@ -14,27 +13,26 @@ const app = express();
 
 app.use( cors() );
 
-const sessionSecret = process.env.SESSION_SECRET_KEY as string;
+app.use( session({
+    secret: process.env.SESSION_SECRET as string, 
+    resave: true, 
+    saveUninitialized: true,
+    cookie: { maxAge: 604800000 }
+}) );
 
-app.use(session({secret: sessionSecret}));
+declare module 'express-session' {
+    interface SessionData {
+        userId: any;
+    }
+}
 
 app.use( express.urlencoded({ extended: true }) );
 app.use( express.static(path.join(__dirname, '../public')) );
 
-app.set('view engine', 'mustache');
-app.set('views', path.join(__dirname, 'views'));
-app.engine('mustache', mustache());
-
-declare module 'express-session' {
-    interface SessionData {
-        token: any;
-    }
-}
-
 app.use(MainRoutes);
 
 app.use((req: Request, res: Response) =>{
-    res.status(404).send('<h1>404</h1>');
+    res.status(404).json({ errMessage: 'Página não encontrada' });
 });
 
 app.listen(process.env.PORT, () =>{

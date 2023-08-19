@@ -9,9 +9,9 @@ dotenv.config();
 
 export async function sendEmailVerification(user: UserInstance){
 
-    const token = await generateToken({ id: user.id, confirm: true }, '600000');
+    const token = await generateToken({ id: user.id, confirm: true }, 600000);
 
-    const html =  buildVerificationHtml(token);
+    const html = buildVerificationHtml(token);
 
     return await sendEmail(user.email, 'Verificação de E-mail', html);
 }
@@ -20,14 +20,23 @@ export async function sendEmailChangeVerification(user: UserInstance){
 
     const changeEmail = await ChangeEmail.findOne({ where: {user_id: user.id} });
 
-    if(!changeEmail) return 'Erro! Operação não inicializada';
+    if(!changeEmail) return 'Troca de E-mail não foi solicitada';
 
-    const confirmToken = await generateToken({ id: user.id, changeConfirm: true }, '600000');
-    const refuseToken = await generateToken({ id: user.id, changeRefuse: true }, '600000');
+    const confirmToken = await generateToken({ id: user.id, changeConfirm: true }, 600000);
+    const refuseToken = await generateToken({ id: user.id, changeRefuse: true }, 600000);
     const html = buildChangeVerificationHtml(confirmToken, refuseToken);
 
     return await sendEmail(user.email, 'Verificação de Mudança de E-mail', html);
 };
+
+export async function sendNewEmailNotification(new_email: string){
+    await sendEmail( 
+        new_email,
+        'Agora seu E-mail é esse aqui!',
+        null,
+        'Faça o Login para entrar na sua conta Usando o novo E-mail'
+    );
+}
 
 export async function sendEmail(userEmail: string, subject: string, html: string|null, text?: string){
     const transport = nodemailer.createTransport({
