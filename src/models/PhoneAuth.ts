@@ -6,7 +6,7 @@ export interface PhoneAuthInstance extends Model{
     user_id: number;
     otp_id: string | null;
     status: 'pending' | 'approved' | 'pending_phone' | 'pending_send';
-    exp: string | null;
+    exp: number | null;
 }
 
 export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
@@ -23,7 +23,7 @@ export const PhoneAuth = sequelize.define<PhoneAuthInstance>('PhoneAuth', {
         allowNull: true
     },
     exp: {
-        type: DataTypes.STRING,
+        type: DataTypes.NUMBER,
         allowNull: true
     }
 }, {

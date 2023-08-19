@@ -19,17 +19,15 @@ export async function login(req: Request, res: Response){
     if(response.message) return res.status(400).json({ errMessage: response.message });
     
     if(response.user){
-        const { user } = response;
+        req.session.userId = response.user.id.toString();
 
-        req.session.userId = user.id.toString();
+        // await sendEmailVerification(user);
 
-        await sendEmailVerification(user);
-
-        const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
+        const phoneAuth = await PhoneAuth.findOne({ where: {user_id: response.user.id} });
 
         if(phoneAuth && phoneAuth.status === 'approved'){
-            await phoneAuth.update({ status: 'pending_send' });
-            await OTP.send(user.phone as string);
+            await phoneAuth.update({ status: 'pending' });
+            await OTP.send(response.user.phone as string);
         }
 
         return res.status(201).json({
@@ -53,7 +51,7 @@ export async function demo(req: Request, res: Response){
     const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
 
     if(phoneAuth && phoneAuth.status === 'approved'){
-        await phoneAuth.update({ status: 'pending_send' });
+        await phoneAuth.update({ status: 'pending' });
         await OTP.send(user.phone as string);
     }
 
@@ -77,8 +75,6 @@ export async function register(req: Request, res: Response){
         req.session.userId = response.user.id.toString();
 
         sendEmailVerification(user);
-
-        if(await checkPhoneAuthStatus(user) === 'pending') await OTP.send(user.phone as string);
 
         return res.status(201).json({ success: 'Usuário Criado' });
     }
