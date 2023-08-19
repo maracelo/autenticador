@@ -3,12 +3,12 @@ import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../instances/postgre';
 
 export interface UserInstance extends Model {
-    id: number;
-    name: string;
-    email: string;
-    verified_email: boolean;
-    password: string;
-    sub: string | null;
+    id: number,
+    name: string,
+    email: string,
+    verified_email: boolean,
+    password: string,
+    sub: string | null
 }
 
 export const User = sequelize.define<UserInstance>('User', {
