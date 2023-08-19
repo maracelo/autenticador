@@ -29,12 +29,15 @@ export async function sendEmailChangeVerification(user: UserInstance){
     return await sendEmail(user.email, 'Verificação de Mudança de E-mail', html);
 };
 
-export async function sendNewEmailNotification(new_email: string){
+export async function sendNewEmailNotification(user: UserInstance, new_email: string){
+
+    const token = await generateToken({ id: user.id, confirm: true }, 600000);
+
     await sendEmail( 
         new_email,
         'Agora seu E-mail é esse aqui!',
         null,
-        'Faça o Login para entrar na sua conta Usando o novo E-mail'
+        `Verifique seu novo E-mail aqui: http://localhost:3000/confirmemail/?confirm=${token}`
     );
 }
 

@@ -1,15 +1,11 @@
 import validator from "validator";
 import bcrypt from 'bcrypt';
 import { User, UserInstance } from "../../models/User";
-import { PhoneAuth } from "../../models/PhoneAuth";
 import validatePassword from "./validatePassword";
-import OTP from "../phone/OTP";
-import PhoneAuthStatus from "../../types/PhoneAuthStatus";
 
 type UserLoginReturn = {
     message: string, user?: UserInstance,
-    email_status?: 'pending',
-    phone_auth_status?: PhoneAuthStatus
+    email_status?: 'pending'
 };
 
 async function userLogin(userInfo: any): Promise<UserLoginReturn>{
@@ -28,14 +24,7 @@ async function userLogin(userInfo: any): Promise<UserLoginReturn>{
 
         if(user.verified_email) user.update({ verified_email: false });
 
-        const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
-
-        if(phoneAuth && phoneAuth.status === 'approved'){
-            await phoneAuth.update({ status: 'pending_send' });
-            await OTP.send(user.phone as string);
-        }
-        
-        return { message: '', user, email_status: 'pending', phone_auth_status: phoneAuth?.status ?? null };
+        return { message: '', user, email_status: 'pending' };
     }
 
     return { message: 'Erro no Sistema! Tente novamente mais tarde' };

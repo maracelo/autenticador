@@ -1,12 +1,9 @@
 import { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { User } from '../models/User'; 
-import { PhoneAuth } from '../models/PhoneAuth';
 import userRegister from '../helpers/login/userRegister';
 import userLogin from '../helpers/login/userLogin';
-import checkPhoneAuthStatus from '../helpers/phone/checkPhoneAuthStatus';
 import { sendEmailVerification } from '../helpers/email/sendEmailVerification';
-import OTP from '../helpers/phone/OTP';
 
 dotenv.config();
 
@@ -21,19 +18,11 @@ export async function login(req: Request, res: Response){
     if(response.user){
         req.session.userId = response.user.id.toString();
 
-        // await sendEmailVerification(user);
-
-        const phoneAuth = await PhoneAuth.findOne({ where: {user_id: response.user.id} });
-
-        if(phoneAuth && phoneAuth.status === 'approved'){
-            await phoneAuth.update({ status: 'pending' });
-            await OTP.send(response.user.phone as string);
-        }
+        await sendEmailVerification(response.user);
 
         return res.status(201).json({
             success: 'Usuário Lougado',
-            email_status: 'pending',
-            phone_auth_status: response.phone_auth_status
+            email_status: 'pending'
         });
     }
 
@@ -48,16 +37,9 @@ export async function demo(req: Request, res: Response){
     
     await user.update({ verified_email: false });
 
-    const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
-
-    if(phoneAuth && phoneAuth.status === 'approved'){
-        await phoneAuth.update({ status: 'pending' });
-        await OTP.send(user.phone as string);
-    }
-
     req.session.userId = user.id.toString();
 
-    res.json({ success: 'Usuário Lougado', email_status: 'pending', phone_auth_status: checkPhoneAuthStatus(user) });
+    res.json({ success: 'Usuário Lougado', email_status: 'pending' });
 }
 
 export async function register(req: Request, res: Response){
@@ -93,17 +75,7 @@ export async function logout(req: Request, res: Response){
 
     const user = await User.findOne({ where: {id} });
 
-    if(user){
-        
-        if(user.verified_email) await user.update({ verified_email: false });
-        
-        if(await checkPhoneAuthStatus(user) === 'approved'){
-            
-            const phoneAuth = await PhoneAuth.findOne({ where: {user_id: user.id} });
-            
-            phoneAuth?.update({ otp_id: null, status: 'pending_send' });
-        }
-    } 
+    if(user && user.verified_email) await user.update({ verified_email: false });
     
     req.session.destroy( (err) =>{ if(err) console.log(err) } );
     res.json({ success: 'Logout Concluído' });

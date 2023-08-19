@@ -8,7 +8,7 @@ import changeConfig from "../helpers/config/changeConfig";
 dotenv.config();
 
 export async function config(req: Request, res: Response){
-    let messages: string|string[] = 'Nada Alterado';
+    let messages: string[] = ['Nada Alterado'];
     let errMessages: undefined|string[];
     
     const user = res.locals.user as UserInstance;

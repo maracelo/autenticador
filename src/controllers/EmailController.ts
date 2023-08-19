@@ -45,7 +45,7 @@ export async function changeConfirm(req: Request, res: Response){
 
     await user?.update({ email: changeEmail?.new_email, verified_email: false });
 
-    await sendEmails.sendNewEmailNotification(changeEmail?.new_email as string);
+    await sendEmails.sendNewEmailNotification(user as UserInstance, changeEmail?.new_email as string);
 
     changeEmail?.destroy();
 
