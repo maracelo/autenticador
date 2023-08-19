@@ -1,3 +1,3 @@
-type JWTUserData = { id: number }
+type JWTUserData = { id: number };
 
 export default JWTUserData;

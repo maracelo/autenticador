@@ -2,7 +2,7 @@ import { Model, DataTypes } from "sequelize";
 // import { sequelize } from '../instances/mysql';
 import { sequelize } from '../instances/postgre';
 
-interface ChangeEmailInstance extends Model {
+export interface ChangeEmailInstance extends Model {
     user_id: string;
     new_email: string;
 }
