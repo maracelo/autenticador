@@ -24,7 +24,6 @@
     "pg": "^8.11.1",
     "sequelize": "^6.31.0",
     "ts-node": "^10.9.1",
-    "tsc": "^2.0.4",
     "validator": "^13.9.0"
   },
   "devDependencies": {
