@@ -1,9 +1,6 @@
 import { User, UserInstance } from "../models/User";
 
-type CheckAuthReturn = {
-    user?: UserInstance;
-    errMessage?: string;
-}
+type CheckAuthReturn = { user?: UserInstance, errMessage?: string }
 
 async function checkAuth(id: any): Promise<CheckAuthReturn>{
     const errMessage = 'Session inválida. Faça seu login em /login';

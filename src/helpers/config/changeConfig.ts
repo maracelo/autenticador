@@ -4,10 +4,10 @@ import changeEmail from "./changeEmail";
 import changePassword from "./changePassword";
 
 type Config = {
-    name?: string;
-    email?: string;
-    new_password?: string;
-    current_password?: string;
+    name?: string,
+    email?: string,
+    new_password?: string,
+    current_password?: string
 }
 
 async function changeConfig(user: UserInstance, newInfo: Config){

@@ -4,7 +4,8 @@ import { User, UserInstance } from "../../models/User";
 import validatePassword from "./validatePassword";
 
 type UserLoginReturn = {
-    message: string, user?: UserInstance,
+    message: string, 
+    user?: UserInstance,
     email_status?: 'pending'
 };
 
