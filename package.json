@@ -37,6 +37,7 @@
     "@types/node": "^18.16.0",
     "@types/nodemailer": "^6.4.8",
     "@types/sequelize": "^4.28.14",
-    "@types/validator": "^13.7.15"
+    "@types/validator": "^13.7.15",
+    "tsc": "^2.0.4"
   }
 }
