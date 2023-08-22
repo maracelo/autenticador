@@ -24,6 +24,7 @@
     "pg": "^8.11.1",
     "sequelize": "^6.31.0",
     "ts-node": "^10.9.1",
+    "tsc": "^2.0.4",
     "typescript": "^5.0.4",
     "validator": "^13.9.0"
   },
@@ -37,7 +38,6 @@
     "@types/node": "^18.16.0",
     "@types/nodemailer": "^6.4.8",
     "@types/sequelize": "^4.28.14",
-    "@types/validator": "^13.7.15",
-    "tsc": "^2.0.4"
+    "@types/validator": "^13.7.15"
   }
 }
