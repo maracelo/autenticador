@@ -17,12 +17,12 @@ module.exports = {
     "dialect": "postgres",
     "port": process.env.POSTGRE_PORT
   },
-  "production": {
+  /* "production": {
     "username": process.env.POSTGRE_USER,
     "password": process.env.POSTGRE_PASSWORD,
     "database": process.env.POSTGRE_DB,
     "host": "127.0.0.1",
     "dialect": "postgres",
     "port": process.env.POSTGRE_PORT
-  }
+  } */
 }
