@@ -7,13 +7,14 @@ let config = {
   'migrations-path': 'src/migrations'
 };
 
-if(NODE_ENV === 'production'){
+if(process.env.NODE_ENV === 'production'){
   config = {
     'config': path.resolve('src/config', 'config.js'),
     'models-path': 'src/models',
     'seeders-path': 'src/seeders',
     'migrations-path': 'src/migrations',
-    'url': process.env.DATABASE_URL
+    // 'url': process.env.MYSQL_URL
+    'url': process.env.POSTGRES_URL
   };
 }
 
