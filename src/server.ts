@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import path from "path";
-import session from "express-session";
+import session, { MemoryStore } from "express-session";
 import MainRoutes from "./routes/index";
 // import { sequelize } from "./instances/mysql";
 import { sequelize } from "./instances/postgre";
@@ -17,6 +17,7 @@ app.use( session({
     secret: process.env.SESSION_SECRET as string, 
     resave: true, 
     saveUninitialized: true,
+    store: new MemoryStore(),
     cookie: { maxAge: 604800000 }
 }) );
 
