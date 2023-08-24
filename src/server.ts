@@ -1,7 +1,8 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import path from "path";
-import session, { MemoryStore } from "express-session";
+import session from "express-session";
+import genFunc from "connect-pg-simple";
 import MainRoutes from "./routes/index";
 // import { sequelize } from "./instances/mysql";
 import { sequelize } from "./instances/postgre";
@@ -13,13 +14,16 @@ const app = express();
 
 app.use( cors() );
 
-app.use( session({
+const PostgresStore = genFunc(session);
+const sessionStore = new PostgresStore({ conString: process.env.POSTGRES_URL as string });
+
+app.use(session({
     secret: process.env.SESSION_SECRET as string, 
     resave: true, 
     saveUninitialized: true,
-    store: new MemoryStore(),
+    store: sessionStore,
     cookie: { maxAge: 604800000 }
-}) );
+}));
 
 declare module 'express-session' {
     interface SessionData {
