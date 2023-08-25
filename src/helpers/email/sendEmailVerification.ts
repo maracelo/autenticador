@@ -37,7 +37,7 @@ export async function sendNewEmailNotification(user: UserInstance, new_email: st
         new_email,
         'Agora seu E-mail é esse aqui!',
         null,
-        `Verifique seu novo E-mail aqui: http://localhost:3000/confirmemail/?confirm=${token}`
+        `Verifique seu novo E-mail aqui: ${process.env.SITE_URL}/confirmemail/?confirm=${token}`
     );
 }
 
