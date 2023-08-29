@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 import { User, UserInstance } from "../models/User";
 import { ChangeEmail, ChangeEmailInstance } from "../models/ChangeEmail";
 import * as sendEmails from "../helpers/email/sendEmailVerification";
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
 dotenv.config();
 
