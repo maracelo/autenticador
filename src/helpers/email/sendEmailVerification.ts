@@ -43,14 +43,14 @@ export async function sendNewEmailNotification(user: UserInstance, new_email: st
 
 export async function sendEmail(userEmail: string, subject: string, html: string|null, text?: string){
     const transport = nodemailer.createTransport({
-        host: "sandbox.smtp.mailtrap.io",
-        port: 2525,
-        auth: { user: process.env.MAILTRAP_USER as string, pass: process.env.MAILTRAP_PASS }
+        host: process.env.NODEMAILER_HOST as string,
+        port: process.env.NODEMAILER_PORT as any,
+        auth: { user: process.env.NODEMAILER_USER as string, pass: process.env.NODEMAILER_PASS as string }
     });
 
     try{
         transport.sendMail({
-            from: 'noreply@test.com',
+            from: process.env.NODEMAILER_USER,
             to: userEmail,
             subject: subject,
             html: html ?? undefined,
