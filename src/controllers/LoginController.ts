@@ -58,7 +58,10 @@ export async function register(req: Request, res: Response){
 
         sendEmailVerification(user);
 
-        return res.status(201).json({ success: 'Usuário Criado' });
+        return res.status(201).json({
+            success: 'Usuário Lougado',
+            email_status: 'pending'
+        });
     }
 
     return res.status(500).json({ errMessage: 'Erro no Sistema' });

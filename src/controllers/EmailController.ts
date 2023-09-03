@@ -26,7 +26,8 @@ export async function authConfirm(req: Request, res: Response){
         return res.json({ errMessage: 'Token expirado! E-mail reenviado' });
     }
 
-    if( content && !content.confirm ) return res.json({ errMessage: 'Token inválido' });
+    if( (content && !content.confirm) || (user as UserInstance).verified_email === true )
+        return res.json({ errMessage: 'Token inválido' });
 
     await User.update({verified_email: true}, { where: {id: content.id} });
 
