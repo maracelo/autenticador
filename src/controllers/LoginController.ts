@@ -59,7 +59,7 @@ export async function register(req: Request, res: Response){
         sendEmailVerification(user);
 
         return res.status(201).json({
-            success: 'Usuário Lougado',
+            success: 'Usuário Criado',
             email_status: 'pending'
         });
     }
