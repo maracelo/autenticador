@@ -22,7 +22,7 @@ export async function config(req: Request, res: Response){
         if(response?.errMessages) errMessages = response.errMessages;
     }
 
-    res.json({ messages });
+    res.json({ messages, errMessages });
 }
 
 export async function deleteUser(req: Request, res: Response){
