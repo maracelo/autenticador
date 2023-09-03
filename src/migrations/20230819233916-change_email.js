@@ -9,7 +9,7 @@ module.exports = {
     return await queryInterface.createTable('change_email', {
       user_id: {
         primaryKey: true,
-        type: DataTypes.NUMBER
+        type: DataTypes.INTEGER
       },
       new_email: DataTypes.STRING,
     });
