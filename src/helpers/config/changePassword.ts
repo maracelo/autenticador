@@ -11,8 +11,10 @@ async function changePassword(new_password: string, user: UserInstance, current_
         
         return { message: 'Senha Mudada' };
     }
+    const errMessage = 'Senha ou senhas precisam ser preenchidas corretamente ' +
+    '(com no mínimo 8 caracteres, letra maiúscula e minúcula, número e caractere especial)' ;
 
-    return { errMessage: 'Senha ou senhas precisam ser preenchidas' };
+    return { errMessage };
 }
 
 async function checkPasswords(newPasswod: string, user: UserInstance, current?: string, ){
