@@ -8,7 +8,6 @@ import Auth from '../middlewares/auth';
 const router = Router();
 
 router.post('/login', Auth.checkJWT, LoginController.login);
-router.get('/logindemo', Auth.checkJWT, LoginController.demo);
 router.post('/register', Auth.checkJWT, LoginController.register);
 router.get('/logout', LoginController.logout);
 

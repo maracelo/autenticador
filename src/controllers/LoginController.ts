@@ -29,19 +29,6 @@ export async function login(req: Request, res: Response){
     return res.status(500).json({ errMessage: 'Erro no Sistema' });
 }
 
-export async function demo(req: Request, res: Response){
-
-    const user = await User.findOne({ where: {email: 'test@test.test'} });
-
-    if(!user) return res.status(500).json({ errMessage: 'Erro no Sistema' });
-    
-    await user.update({ verified_email: false });
-
-    req.session.userId = user.id.toString();
-
-    res.json({ success: 'Usuário Lougado', email_status: 'pending' });
-}
-
 export async function register(req: Request, res: Response){
 
     if(!req.body) return res.status(400).json({ errMessage: 'Informações não enviadas' });
