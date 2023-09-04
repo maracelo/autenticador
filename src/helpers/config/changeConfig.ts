@@ -11,9 +11,8 @@ type Config = {
 }
 
 async function changeConfig(user: UserInstance, newInfo: Config){
-
-    let {name, email, new_password, current_password} = newInfo;
     const changesRes = [];
+    let {name, email, new_password, current_password} = newInfo;
 
     if(name && name !== user.name) changesRes.push( await changeName(name, user) );
 

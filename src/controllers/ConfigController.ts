@@ -9,7 +9,7 @@ dotenv.config();
 
 export async function config(req: Request, res: Response){
     let messages: string[] = ['Nada Alterado'];
-    let errMessages: undefined|string[];
+    let errMessages: string[] = [];
     
     const user = res.locals.user as UserInstance;
     
@@ -27,16 +27,21 @@ export async function config(req: Request, res: Response){
 
 export async function deleteUser(req: Request, res: Response){
     const password = await req.body.password
+    const errMessage = 'Senha incorreta';
 
-    if(!password && validatePassword(password)) return res.status(400).json({ errMessage: 'Senha incorreta' });
+    if(!password && validatePassword(password)) return res.status(401).json({ errMessage });
     
     const user = res.locals.user as UserInstance;
     
     const permission = await bcrypt.compare(password, user.password);
 
-    if(!permission) return res.json({ errMessage: 'Senha incorreta' });
+    if(!permission) return res.status(401).json({ errMessage });
 
-    await user.destroy();
-
+    try{
+        await user.destroy();
+    }catch(err){
+        return res.status(500).json({ errMessage: 'Erro no Sistema! Tente novamente mais tarde' });
+    }
+    
     res.json({ success: 'Usuário deletado com sucesso' });
 }

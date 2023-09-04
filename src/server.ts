@@ -42,7 +42,7 @@ app.use((req: Request, res: Response) =>{
 
 app.listen(process.env.PORT, () =>{
     console.log(
-        `listening port ${process.env.PORT}, link: http://localhost:3000`
+        `listening port ${process.env.PORT}, link: ${process.env.SITE_URL}`
     );
 });
 

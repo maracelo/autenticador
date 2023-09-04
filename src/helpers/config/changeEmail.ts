@@ -1,7 +1,7 @@
 import validator from "validator";
 import { User, UserInstance } from "../../models/User";
 import { ChangeEmail } from "../../models/ChangeEmail";
-import { sendEmailChangeVerification } from "../email/sendEmailVerification";
+import { sendEmailChangeVerification } from "../email/sendEmail";
 
 async function changeEmail(email: string, user: UserInstance){
 
@@ -15,9 +15,9 @@ async function changeEmail(email: string, user: UserInstance){
 
     await ChangeEmail.create({ user_id: user.id, new_email: email });
 
-    const send = await sendEmailChangeVerification(user);
+    const sendReturn = await sendEmailChangeVerification(user);
 
-    if(send) return { errMessage: send };
+    if(sendReturn) return { errMessage: sendReturn };
 
     return { message: 'Mensagem enviada para seu E-mail Atual' };
 }

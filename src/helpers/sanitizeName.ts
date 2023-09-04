@@ -1,6 +1,6 @@
 import validator from 'validator';
 
-function sanitizeName(name: string){
+function sanitizeName(name: string): string{
     return validator.blacklist(name, '<>&\'"/');
 }
 
