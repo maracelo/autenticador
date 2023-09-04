@@ -72,20 +72,20 @@ npm run start
 
 ## Rotas:
 
-- ### Login
+### Login
 
 - POST **/login**               *(body: email e password) ou (body: email, sub)*
 - POST **/register**            *(body: name, email, password, password_confirmation) ou (body: name, email, sub)*
 - GET  **/logout**
 
-- ### Email
+### Email
 
 - GET  **/confirmemail**        *(query string: confirm={{token}})*
 - GET  **/confirm_changeemail** *(query string: confirm_changeemail={{token}})*
 - GET  **/refuse_changeemail**  *(query string: refuse_changeemail={{token}})*
 - GET  **/emaildemo**
 
-- ### Config
+### Config
 
 - POST **/config**              *(body: name<sup>opcional</sup>, email<sup>opcional</sup>, new_password<sup>opcional</sup>, current_password<sup>opcional</sup>)*
 - POST **/deleteuser**          *(body: password)*
@@ -93,6 +93,6 @@ npm run start
 > [!IMPORTANT]
 > Na roda /config, Se o usuário foi criado com sub, não tiver senha e você quiser adicionar uma, basta enviar o campo new_password.
 
-- ### Home
+### Home
 
 - GET  **/**
