@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { User } from '../models/User'; 
 import userRegister from '../helpers/login/userRegister';
 import userLogin from '../helpers/login/userLogin';
-import { sendEmailVerification } from '../helpers/email/sendEmailVerification';
+import { sendEmailVerification } from '../helpers/email/sendEmail';
 
 dotenv.config();
 
@@ -12,6 +12,8 @@ export async function login(req: Request, res: Response){
     if(!req.body) return res.status(400).json({ errMessage: 'Informações não enviadas' });
     
     const response = await userLogin(req.body);
+
+    if(!response) return res.status(500).json({ errMessage: 'Erro no Sistema! Tente novamente mais tarde' });
 
     if(response.message) return res.status(400).json({ errMessage: response.message });
     
@@ -25,8 +27,6 @@ export async function login(req: Request, res: Response){
             email_status: 'pending'
         });
     }
-
-    return res.status(500).json({ errMessage: 'Erro no Sistema' });
 }
 
 export async function register(req: Request, res: Response){
@@ -34,6 +34,8 @@ export async function register(req: Request, res: Response){
     if(!req.body) return res.status(400).json({ errMessage: 'Informações não enviadas' });
     
     const response = await userRegister(req.body);
+
+    if(!response) return res.status(500).json({ errMessage: 'Erro no Sistema! Tente novamente mais tarde' });
 
     if(response.messages && response.messages[0]){
         return res.status(400).json({ errMessage: response.messages });
@@ -50,8 +52,6 @@ export async function register(req: Request, res: Response){
             email_status: 'pending'
         });
     }
-
-    return res.status(500).json({ errMessage: 'Erro no Sistema' });
 };
 
 export async function logout(req: Request, res: Response){

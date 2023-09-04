@@ -4,7 +4,7 @@ import { User, UserInstance } from '../../models/User';
 import validatePassword from './validatePassword';
 import sanitizeName from '../sanitizeName';
 
-type UserRegisterReturn = {
+type UserRegisterReturn = void | {
     messages: string[],
     user?: UserInstance, 
     email_status?: 'pending'
@@ -35,8 +35,6 @@ async function userRegister(userInfo: any): Promise<UserRegisterReturn>{
             return { messages: [], user: newUser, email_status: 'pending' };
         }
     }
-
-    return { messages: ['Erro no Sistema! Tente novamente mais tarde'] };
 }
 
 async function defaultUserInfoValidation(userInfo: any){
@@ -57,9 +55,7 @@ async function defaultUserInfoValidation(userInfo: any){
 
     if(!userInfo.password) messages.push( 'Senha vazia');
 
-    if(userInfo.password !== userInfo.password_confirmation){
-        messages.push( 'Senhas precisam ser iguais');
-    }
+    if(userInfo.password !== userInfo.password_confirmation) messages.push( 'Senhas precisam ser iguais');
     
     if(!validatePassword(userInfo.password)){
         [
@@ -87,9 +83,7 @@ async function defaultUserInfoValidation(userInfo: any){
 
 async function SSOUserInfoValidation(userInfo: any){
 
-    if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.sub){
-        return { messages: ['Campo não preenchido'] };
-    }
+    if(!userInfo || !userInfo.name || !userInfo.email || !userInfo.sub) return { messages: ['Campo não preenchido'] };
 
     const user = await User.findOne({ where: { email: userInfo.email } });
 
