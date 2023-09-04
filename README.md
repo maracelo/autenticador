@@ -91,7 +91,7 @@ npm run start
 - POST **/deleteuser**          *(body: password)*
 
 > [!IMPORTANT]
-> Na roda /config, Se o usuário foi criado com sub, não tiver senha e você quiser adicionar uma, basta enviar o campo new_password.
+> Na rota /config, se o usuário foi criado com sub, não tiver senha e você quiser adicionar uma, basta enviar o campo new_password.
 
 ### Home
 
