@@ -33,12 +33,9 @@ export async function sendNewEmailNotification(user: UserInstance, new_email: st
 
     const token = await generateToken({ id: user.id, confirm: true }, 600000);
 
-    await sendEmail( 
-        new_email,
-        'Agora seu E-mail é esse aqui!',
-        null,
-        `Verifique seu novo E-mail aqui: ${process.env.SITE_URL}/confirmemail/?confirm=${token}`
-    );
+    const html = buildVerificationHtml(token);
+
+    await sendEmail(new_email, 'Agora seu E-mail é esse aqui!', html);
 }
 
 export async function sendEmail(userEmail: string, subject: string, html: string|null, text?: string){
