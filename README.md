@@ -78,9 +78,9 @@ npm run start
 - POST **/register**            *(body: name, email, password, password_confirmation) ou (body: name, email, sub)*
 - GET  **/logout**
 
- > **/login** faz o login do usuário
- > **/register** cadastra a conta do usuário
- > **/logout** invalida a sessão e a autorização do email
+> **/login** faz o login do usuário
+**/register** cadastra a conta do usuário
+**/logout** invalida a sessão e a autorização do email
 
 ### Email
 
@@ -90,9 +90,9 @@ npm run start
 - GET  **/emaildemo**
 
 > **/confirmemail** confirma a autenticação por email
-> **/confirm_changeemail** confirma a mudança de email
-> **/refuse_changeemail** recusa a mudança de email
-> **/emaildemo** confirma a autenticação email para não ter que acessar o email
+**/confirm_changeemail** confirma a mudança de email
+**/refuse_changeemail** recusa a mudança de email
+**/emaildemo** confirma a autenticação email para não ter que acessar o email
 
 ### Config
 
@@ -100,7 +100,7 @@ npm run start
 - POST **/deleteuser**          *(body: password)*
 
 > **/config** muda os dados do usuário
-> **/deleteuser** deleta a conta do usuário
+**/deleteuser** deleta a conta do usuário
 
 > [!IMPORTANT]
 > Na rota /config, se o usuário foi criado com sub, não tiver senha e você quiser adicionar uma, basta enviar o campo new_password.
