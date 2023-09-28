@@ -4,7 +4,7 @@ Autenticador-nodejs é uma API de 2FA super simples.
 
 - Usa banco de dados postgres, mas tem a opção de usar mysql.
 - O envio de email é feito pelo serviço da [Brevo](https://www.brevo.com/), mas você pode mudar o serviço (talvez precise de mudanças no código).
-- A API funciona com o google button e facebook button (basta enviar as informações necessárias)
+- A API funciona com o google button e facebook button (basta enviar as informações necessárias).
 
 ## Development
 
@@ -27,11 +27,11 @@ NODEMAILER_PORT={{serviço porta}}
 NODEMAILER_USER={{serviço usuário}}
 NODEMAILER_PASS={{serviço senha}}
 ```
-1. Instalar dependências
+2. Instalar dependências
 ```
 npm install
 ```
-1. Rodar o comando dev
+3. Rodar o comando dev
 ```
 npm run dev
 ```
@@ -57,15 +57,15 @@ NODEMAILER_PORT={{serviço porta}}
 NODEMAILER_USER={{serviço usuário}}
 NODEMAILER_PASS={{serviço senha}}
 ```
-1. Instalar dependências
+2. Instalar dependências
 ```
 npm install
 ```
-1. Rodar o comando de build
+3. Rodar o comando de build
 ```
 npm run build
 ```
-1. Rodar o comando de iniciar
+4. Rodar o comando de iniciar
 ```
 npm run start
 ```
@@ -78,6 +78,10 @@ npm run start
 - POST **/register**            *(body: name, email, password, password_confirmation) ou (body: name, email, sub)*
 - GET  **/logout**
 
+ > **/login** faz o login do usuário
+ > **/register** cadastra a conta do usuário
+ > **/logout** invalida a sessão e a autorização do email
+
 ### Email
 
 - GET  **/confirmemail**        *(query string: confirm={{token}})*
@@ -85,10 +89,18 @@ npm run start
 - GET  **/refuse_changeemail**  *(query string: refuse_changeemail={{token}})*
 - GET  **/emaildemo**
 
+> **/confirmemail** confirma a autenticação por email
+> **/confirm_changeemail** confirma a mudança de email
+> **/refuse_changeemail** recusa a mudança de email
+> **/emaildemo** confirma a autenticação email para não ter que acessar o email
+
 ### Config
 
 - POST **/config**              *(body: name<sup>opcional</sup>, email<sup>opcional</sup>, new_password<sup>opcional</sup>, current_password<sup>opcional</sup>)*
 - POST **/deleteuser**          *(body: password)*
+
+> **/config** muda os dados do usuário
+> **/deleteuser** deleta a conta do usuário
 
 > [!IMPORTANT]
 > Na rota /config, se o usuário foi criado com sub, não tiver senha e você quiser adicionar uma, basta enviar o campo new_password.
@@ -96,3 +108,5 @@ npm run start
 ### Home
 
 - GET  **/**
+
+> **/** demostra que usuário tem acesso a rota, mostra seu nome e email
