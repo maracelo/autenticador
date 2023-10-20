@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import dotenv from 'dotenv';
 import { User, UserInstance } from "../models/User";
-import { ChangeEmail, ChangeEmailInstance } from "../models/ChangeEmail";
+import { ChangeEmail } from "../models/ChangeEmail";
 import * as sendEmails from "../helpers/email/sendEmail";
 import checkToken from "../helpers/email/checkToken";
 
@@ -75,7 +75,7 @@ async function changeDefaultValidation(content: any, user: UserInstance){
         return { changeErrMessage };
 
     if( (Date.now() / 1000) > content.exp ){
-        await sendEmails.sendEmailChangeVerification(user);
+        await sendEmails.sendEmailChangeVerification(user, ChangeEmail);
         return { changeErrMessage: 'Token expirado! E-mail reenviado' };
     }
 
