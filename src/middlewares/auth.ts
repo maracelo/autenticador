@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { User, UserInstance } from '../models/User';
+import { User } from '../models/User';
 import checkAuth from '../helpers/checkAuth';
 
 const Auth = { checkJWT, privateRoute, normalRoute, verifyEmailRoute }
@@ -15,7 +15,7 @@ async function checkJWT(req: Request, res: Response, next: NextFunction){
 
 async function privateRoute(req: Request, res: Response, next: NextFunction){
     
-    const response = await checkAuth(await req.session.userId ?? null);
+    const response = await checkAuth(await req.session.userId ?? null, User);
 
     if(response.errMessage) return res.json({ errMessage: response.errMessage });
 
