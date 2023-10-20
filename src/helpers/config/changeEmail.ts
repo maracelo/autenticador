@@ -1,9 +1,10 @@
 import validator from "validator";
-import { User, UserInstance } from "../../models/User";
-import { ChangeEmail } from "../../models/ChangeEmail";
+import { ModelStatic } from "sequelize";
+import { UserInstance } from "../../models/User";
+import { ChangeEmailInstance } from "../../models/ChangeEmail";
 import { sendEmailChangeVerification } from "../email/sendEmail";
 
-async function changeEmail(email: string, user: UserInstance){
+async function changeEmail(email: string, user: UserInstance, User: ModelStatic<UserInstance>, ChangeEmail: ModelStatic<ChangeEmailInstance>){
 
     if(!validator.isEmail(email)) return { errMessage: 'E-mail inválido' };
 
@@ -13,9 +14,14 @@ async function changeEmail(email: string, user: UserInstance){
 
     if(emailExists) return { errMessage: 'E-mail já cadastrado' };
 
-    await ChangeEmail.create({ user_id: user.id, new_email: email });
+    try{
+        await ChangeEmail.create({ user_id: user.id, new_email: email });
+    }catch(err){
+        console.log(err);
+        return { errMessage: 'Erro no sistema' };
+    }
 
-    const sendReturn = await sendEmailChangeVerification(user);
+    const sendReturn = await sendEmailChangeVerification(user, ChangeEmail);
 
     if(sendReturn) return { errMessage: sendReturn };
 

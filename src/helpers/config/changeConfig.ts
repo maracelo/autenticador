@@ -1,4 +1,5 @@
-import { UserInstance } from "../../models/User";
+import { User, UserInstance } from "../../models/User";
+import { ChangeEmail } from "../../models/ChangeEmail";
 import changeName from "./changeName";
 import changeEmail from "./changeEmail";
 import changePassword from "./changePassword";
@@ -16,7 +17,7 @@ async function changeConfig(user: UserInstance, newInfo: Config){
 
     if(name && name !== user.name) changesRes.push( await changeName(name, user) );
 
-    if(email) changesRes.push( await changeEmail(email, user) );
+    if(email) changesRes.push( await changeEmail(email, user, User, ChangeEmail) );
 
     if(new_password) changesRes.push( await changePassword(new_password, user, current_password) );
 
