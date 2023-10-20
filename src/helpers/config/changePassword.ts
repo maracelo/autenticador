@@ -1,15 +1,18 @@
 import bcrypt from "bcrypt";
 import { UserInstance } from "../../models/User";
+import validatePassword from "../login/validatePassword";
 
-async function changePassword(new_password: string, user: UserInstance, current_password?: string){
+type ChangePasswordReturn = Promise<{message: string}|{errMessage: string}>;
+
+async function changePassword(newPassword: string, user: UserInstance, currentPassword?: string): ChangePasswordReturn{
     
-    if( await checkPasswords(new_password, user, current_password) ){
+    if( await checkPasswords(newPassword, user, currentPassword) ){
         
-        const encryptedPassword = await bcrypt.hash(new_password, 8);
+        const encryptedPassword = await bcrypt.hash(newPassword, 8);
 
         await user.update({ password: encryptedPassword });
         
-        return { message: 'Senha Mudada' };
+        return { message: 'Senha mudada' };
     }
     
     const errMessage = 'Senha ou senhas precisam ser preenchidas corretamente (com no mínimo 8 caracteres, letra maiúscula e minúcula, número e caractere especial)';
@@ -17,13 +20,21 @@ async function changePassword(new_password: string, user: UserInstance, current_
     return { errMessage };
 }
 
-async function checkPasswords(newPasswod: string, user: UserInstance, current?: string, ){
-    if(
-        ( user.sub && !user.password && !current)
-        || ( current && current !== newPasswod  && await bcrypt.compare( current, user.password ))
-    ) return true;
+async function checkPasswords(newPass: string, user: UserInstance, current?: string, ): Promise<boolean>{
+
+    if( (newPass && validatePassword(newPass)) ){
+
+        if( user.sub && !current && !user.password ) return true;
+        
+        else if(
+            current && validatePassword(current) && current !== newPass && 
+            await bcrypt.compare( current, user.password )
+        ){
+            return true;
+        }
+    }
 
     return false;
 }
 
-export default changePassword
+export default changePassword;
