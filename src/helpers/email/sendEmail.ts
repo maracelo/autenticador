@@ -1,7 +1,8 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import { ModelStatic } from 'sequelize';
 import { UserInstance } from '../../models/User';
-import { ChangeEmail } from '../../models/ChangeEmail';
+import { ChangeEmailInstance } from '../../models/ChangeEmail';
 import generateToken from '../generateToken';
 import { buildVerificationHtml, buildChangeVerificationHtml } from './buildEmailHtml';
 
@@ -16,7 +17,7 @@ export async function sendEmailVerification(user: UserInstance){
     return await sendEmail(user.email, 'Verificação de E-mail', html);
 }
 
-export async function sendEmailChangeVerification(user: UserInstance){
+export async function sendEmailChangeVerification(user: UserInstance, ChangeEmail: ModelStatic<ChangeEmailInstance>){
 
     const changeEmail = await ChangeEmail.findOne({ where: {user_id: user.id} });
 
